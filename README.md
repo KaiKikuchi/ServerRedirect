@@ -14,7 +14,7 @@ ServerRedirect supports Forge, Bukkit/Spigot and SpongeVanilla/SpongeForge serve
 - `serverredirect.command.redirect`: allows using the /redirect command
 
 ## Questions & Answers
-### Why should I use this mod instead of a proxy server?
+#### Why should I use this mod instead of a proxy server?
 - It is easier to use
 - It is safer to use
 - It is lightweight
@@ -47,33 +47,33 @@ Currently, ServerRedirect supports Minecraft 1.7.10 and newer versions. I may de
 #### How are transfers not limited to Minecraft servers on my dedicated server?
 A proxy server can only transfer clients between servers configured on the same proxy server. ServerRedirect allows you to use any server address! You can transfer players to servers oversea!
 
-### It seems very nice... but what are the drawbacks of using this mod instead of a proxy?
+#### It seems very nice... but what are the drawbacks of using this mod instead of a proxy?
 - Clients without this mod will not be transferred to other servers by this mod. They will be able to join the server anyway by using direct addresses (e.g. sf3.toastynetworks.net) for example.
 - This mod does not provide a way to exchange data between the servers on your network. You must rely on other software to make that happen (e.g. SynX).
 
-### Players do not want to install this mod manually
+#### Players do not want to install this mod manually
 It would be much easier if this mod was included in your modpack! It would be even better if this mod was part of Forge or Vanilla Minecraft! Maybe, someday! :)
 
-### If players do not install this mod, will they still be able to join my server?
+#### If players do not install this mod, will they still be able to join my server?
 This mod is optional and not required at all. Players without this mod can join servers just fine. 
 
-### Without a proxy server, I can't share chat and run commands on other servers!
+#### Without a proxy server, I can't share chat and run commands on other servers!
 There are few plugins that can do that fine without a proxy server. Be sure to check SynX, Sync (send commands between servers) and SynGlobalChannels (chat plugin with chat shared between servers)!
 
-### Will it affect Vanilla clients?
+#### Will it affect Vanilla clients?
 No, it will not. Vanilla clients can still connect to your server, but they will have to manually connect to the desired server address.
 
-### How should I set up my server with this mod?
+#### How should I set up my server with this mod?
 There are many ways to set up a server with this mod. This is a way to make a Spigot hub/lobby that allows Minecraft clients from version 1.4.7 to 1.12.2 to connect to it:
 - Download latest version of Spigot, ProtocolSupport, and ServerRedirect-Plugin.
 - Make a hub/lobby with Spigot, and add ProtocolSupport and ServerRedirect-Plugin to the "plugins" folder.
 - Make one Command Block for each one of your servers, and set them with the /redirect command. Place a button on them and a Sign with the name of the server. You can also use a plugins like BossShop to make a server selector GUI.
 - You can also make command aliases, so /hub and/or /lobby runs the appropriate /redirect command for the player, or a fancy /servers command with the list of all your servers.
 
-### I am a modpack developer and I would like to add this mod to my modpack!
+#### I am a modpack developer and I would like to add this mod to my modpack!
 That would be highly appreciated! You do not even have to ask for any permission to use this mod, feel free to add it! I am sure all server owners will appreciate it!
 
-### I am a mods/plugins developer. Can I use this mod/plugin for my mod/plugin?
+#### I am a mods/plugins developer. Can I use this mod/plugin for my mod/plugin?
 Yes, you can! Include the mod or plugin on your build path, then check the ServerRedirect class. Also, you can make PlayerRedirectEvent and PlayerWithRedirectJoinEvent event listeners!
 
 ## License and improvements to the project
