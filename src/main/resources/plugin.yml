@@ -1,0 +1,9 @@
+name: ${project.artifactId}
+main: ${package}.bukkit.${project.artifactId}
+version: ${project.version}
+author: ${developer}
+
+commands:
+   ${project.artifactId}:
+      description: Manage ${project.artifactId}
+      aliases: [redirect]

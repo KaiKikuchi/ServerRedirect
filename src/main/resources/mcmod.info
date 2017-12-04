@@ -1,0 +1,11 @@
+[
+    {
+        "modid": "${lowercaseid}",
+        "name": "${project.artifactId}",
+        "version": "${project.version}",
+        "description": "${description}",
+        "requiredMods": [
+            "spongeapi@5.1.0-SNAPSHOT"
+        ]
+    }
+]
