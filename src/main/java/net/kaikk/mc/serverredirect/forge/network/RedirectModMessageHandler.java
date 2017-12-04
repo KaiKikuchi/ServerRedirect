@@ -8,13 +8,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class RedirectModMessageHandler implements IMessageHandler<RedirectModMessage, IMessage> {
 	@Override
 	public IMessage onMessage(RedirectModMessage message, MessageContext ctx) {
 		// The server received this message from the client because they have this mod
-		final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+		final EntityPlayerMP player = ctx.getServerHandler().player;
 		
 		Minecraft.getMinecraft().addScheduledTask(new Runnable() {
 			@Override
@@ -28,7 +27,6 @@ public class RedirectModMessageHandler implements IMessageHandler<RedirectModMes
 				}
 			}
 		});
-		
 		return null;
 	}
 }

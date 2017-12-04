@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.PlayerList;
 import net.minecraftforge.common.MinecraftForge;
@@ -47,14 +48,14 @@ public class ServerRedirect {
 
 	// this set contains a list of UUIDs of the players that have this mod on their client
 	@SideOnly(Side.SERVER)
-	public static Set<UUID> playersWithThisMod; 
+	public static Set<UUID> playersWithThisMod;
 	
 	@SideOnly(Side.SERVER)
 	@EventHandler
 	public void initServer(FMLConstructionEvent event) {
 		playersWithThisMod = new HashSet<UUID>();
 	}
-
+	
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
 		// initialize the channel
@@ -92,7 +93,7 @@ public class ServerRedirect {
 		
 		final Minecraft mc = Minecraft.getMinecraft();
 		mc.displayGuiScreen(new GuiIngameMenu());
-		mc.theWorld.sendQuittingDisconnectingPacket();
+		mc.world.sendQuittingDisconnectingPacket();
 		mc.loadWorld((WorldClient)null);
 		mc.displayGuiScreen(new GuiMainMenu());
 		mc.displayGuiScreen(new GuiConnecting(mc.currentScreen, mc, new ServerData("ServerRedirect", redirectAddress, false)));
@@ -166,14 +167,17 @@ public class ServerRedirect {
 		final RedirectAddressMessage message = new RedirectAddressMessage(serverAddress);
 		
 		final PlayerList pl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
-		for (UUID playerId : playersWithThisMod) {
+		
+		for (UUID playerId : playersWithThisMod) {				
 			final EntityPlayerMP player = pl.getPlayerByUUID(playerId);
 			if (player != null) {
-				net.sendTo(message, player);
+				if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
+					net.sendTo(message, player);
+				}
 			}
 		}
 	}
-
+	
 	@SideOnly(Side.SERVER)
 	@SubscribeEvent(priority=EventPriority.LOWEST)
     public void onPlayerLoginServer(PlayerEvent.PlayerLoggedInEvent event) {
@@ -187,7 +191,7 @@ public class ServerRedirect {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onPlayerJoinServer(EntityJoinWorldEvent event) {
-		if (event.getEntity() == Minecraft.getMinecraft().thePlayer) {
+		if (event.getEntity() == Minecraft.getMinecraft().player) {
 			/*
 			 * Send a message to the server informing it that this client has this mod. 
 			 * */

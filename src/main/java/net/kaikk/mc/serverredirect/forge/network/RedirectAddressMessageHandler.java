@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class RedirectAddressMessageHandler implements IMessageHandler<RedirectAddressMessage, IMessage> {
 	@Override

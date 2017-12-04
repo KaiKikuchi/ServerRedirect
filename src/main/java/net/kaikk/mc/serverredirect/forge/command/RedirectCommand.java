@@ -17,19 +17,19 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.SERVER)
 public class RedirectCommand implements ICommand {
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return "redirect";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender sender) {
+	public String getUsage(ICommandSender sender) {
 		return "Usage: /redirect <address> <PlayerName|PlayerUUID|\"*\">";
 	}
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length < 2) {
-			sender.addChatMessage(new TextComponentString(this.getCommandUsage(sender)));
+			sender.sendMessage(new TextComponentString(this.getUsage(sender)));
 			return;
 		}
 
@@ -43,29 +43,29 @@ public class RedirectCommand implements ICommand {
 					ServerRedirect.sendTo(args[0], args[1]);
 				}
 			} catch (IllegalArgumentException e) {
-				sender.addChatMessage(new TextComponentString("Error: " + e.getMessage()));
+				sender.sendMessage(new TextComponentString("Error: " + e.getMessage()));
 			}
 		}
 	}
 
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return sender.canCommandSenderUseCommand(3, this.getCommandName());
+		return sender.canUseCommand(3, this.getName());
 	}
 
 	@Override
 	public int compareTo(ICommand o) {
-		return o.getCommandName().compareTo(this.getCommandName());
+		return this.getName().compareTo(o.getName());
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
-			BlockPos pos) {
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
+			BlockPos targetPos) {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List getCommandAliases() {
+	public List getAliases() {
 		return Collections.emptyList();
 	}
 
