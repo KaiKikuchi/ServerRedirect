@@ -4,15 +4,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.kaikk.mc.serverredirect.forge.ServerRedirect;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.util.ChatComponentText;
 
 @SideOnly(Side.SERVER)
 public class RedirectCommand implements ICommand {
@@ -27,9 +24,9 @@ public class RedirectCommand implements ICommand {
 	}
 
 	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+	public void processCommand(ICommandSender sender, String[] args) {
 		if (args.length < 2) {
-			sender.addChatMessage(new TextComponentString(this.getCommandUsage(sender)));
+			sender.addChatMessage(new ChatComponentText(this.getCommandUsage(sender)));
 			return;
 		}
 
@@ -43,25 +40,24 @@ public class RedirectCommand implements ICommand {
 					ServerRedirect.sendTo(args[0], args[1]);
 				}
 			} catch (IllegalArgumentException e) {
-				sender.addChatMessage(new TextComponentString("Error: " + e.getMessage()));
+				sender.addChatMessage(new ChatComponentText("Error: " + e.getMessage()));
 			}
 		}
 	}
 
 	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+	public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean canCommandSenderUseCommand(ICommandSender sender) {
 		return sender.canCommandSenderUseCommand(3, this.getCommandName());
 	}
-
+	
 	@Override
-	public int compareTo(ICommand o) {
-		return o.getCommandName().compareTo(this.getCommandName());
-	}
-
-	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
-			BlockPos pos) {
-		return Collections.emptyList();
+	public int compareTo(Object o) {
+		return this.getCommandName().compareTo(((ICommand) o).getCommandName());
 	}
 
 	@Override

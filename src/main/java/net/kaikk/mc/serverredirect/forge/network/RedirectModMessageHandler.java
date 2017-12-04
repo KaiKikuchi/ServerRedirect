@@ -1,14 +1,12 @@
 package net.kaikk.mc.serverredirect.forge.network;
 
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import net.kaikk.mc.serverredirect.forge.ServerRedirect;
 import net.kaikk.mc.serverredirect.forge.event.PlayerWithRedirectJoinEvent;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class RedirectModMessageHandler implements IMessageHandler<RedirectModMessage, IMessage> {
 	@Override
@@ -16,19 +14,14 @@ public class RedirectModMessageHandler implements IMessageHandler<RedirectModMes
 		// The server received this message from the client because they have this mod
 		final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
 		
-		Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+		ServerRedirect.sync.add(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					ServerRedirect.playersWithThisMod.add(player.getUniqueID());
-					
-					MinecraftForge.EVENT_BUS.post(new PlayerWithRedirectJoinEvent(player));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				ServerRedirect.playersWithThisMod.add(player.getUniqueID());
+				
+				MinecraftForge.EVENT_BUS.post(new PlayerWithRedirectJoinEvent(player));
 			}
 		});
-		
-		return null;
+		return null;	
 	}
 }
