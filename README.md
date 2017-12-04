@@ -48,11 +48,14 @@ Currently, ServerRedirect supports Minecraft 1.7.10 and newer versions. I may de
 A proxy server can only transfer clients between servers configured on the same proxy server. ServerRedirect allows you to use any server address! You can transfer players to servers oversea!
 
 ### It seems very nice... but what are the drawbacks of using this mod instead of a proxy?
-- Clients without this mod will not be transferred to other servers by this mod. They will be able to join the server anyway.
+- Clients without this mod will not be transferred to other servers by this mod. They will be able to join the server anyway by using direct addresses (e.g. sf3.toastynetworks.net) for example.
 - This mod does not provide a way to exchange data between the servers on your network. You must rely on other software to make that happen (e.g. SynX).
 
 ### Players do not want to install this mod manually
 It would be much easier if this mod was included in your modpack! It would be even better if this mod was part of Forge or Vanilla Minecraft! Maybe, someday! :)
+
+### If players do not install this mod, will they still be able to join my server?
+This mod is optional and not required at all. Players without this mod can join servers just fine. 
 
 ### Without a proxy server, I can't share chat and run commands on other servers!
 There are few plugins that can do that fine without a proxy server. Be sure to check SynX, Sync (send commands between servers) and SynGlobalChannels (chat plugin with chat shared between servers)!
