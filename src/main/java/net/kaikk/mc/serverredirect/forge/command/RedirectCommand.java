@@ -11,7 +11,6 @@ import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 
-@SideOnly(Side.SERVER)
 public class RedirectCommand implements ICommand {
 	@Override
 	public String getCommandName() {

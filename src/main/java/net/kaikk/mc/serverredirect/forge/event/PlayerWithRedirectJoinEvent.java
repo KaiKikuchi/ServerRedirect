@@ -5,7 +5,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayerMP;
 
-@SideOnly(Side.SERVER)
 public class PlayerWithRedirectJoinEvent extends Event {
 	protected final EntityPlayerMP player;
 

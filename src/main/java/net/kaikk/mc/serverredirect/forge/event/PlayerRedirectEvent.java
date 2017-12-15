@@ -6,7 +6,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayerMP;
 
-@SideOnly(Side.SERVER)
 @Cancelable
 public class PlayerRedirectEvent extends Event {
 	protected final EntityPlayerMP player;
