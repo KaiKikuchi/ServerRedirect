@@ -13,6 +13,10 @@ import net.minecraftforge.fml.relauncher.Side;
 public class RedirectModMessageHandler implements IMessageHandler<RedirectModMessage, IMessage> {
 	@Override
 	public IMessage onMessage(RedirectModMessage message, MessageContext ctx) {
+		if (ServerRedirect.playersWithThisMod == null) {
+			return null;
+		}
+		
 		// The server received this message from the client because they have this mod
 		final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
 		

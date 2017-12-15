@@ -40,13 +40,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ServerRedirect {
 	public static final String MODID = "serverredirect";
 	public static final String NAME = "ServerRedirect";
-	public static final String VERSION = "1.3.4";
+	public static final String VERSION = "1.3.5";
 
 	// Channel to send messages between server and client... like a request from the server to the client to connect to another server address
 	public static SimpleNetworkWrapper net;
 
 	// this set contains a list of UUIDs of the players that have this mod on their client
-	@SideOnly(Side.SERVER)
 	public static Set<UUID> playersWithThisMod; 
 	
 	@SideOnly(Side.SERVER)
