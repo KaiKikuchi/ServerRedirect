@@ -51,6 +51,7 @@ public class ServerRedirect implements RawDataListener {
 		Sponge.getCommandManager().register(this, new CommandExec(), PluginInfo.id, "redirect");
 
 		channel = Sponge.getChannelRegistrar().createChannel(this, "ServerRedirect");
+		channel.registerMessage(RedirectModMessage.class, 0);
 		channel.addHandler(RedirectModMessage.class, Type.SERVER, new RedirectModMessageHandler());
 		channel.registerMessage(RedirectAddressMessage.class, 1);
 		
