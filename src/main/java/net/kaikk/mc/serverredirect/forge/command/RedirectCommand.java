@@ -14,7 +14,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.SERVER)
 public class RedirectCommand implements ICommand {
 	@Override
 	public String getName() {
