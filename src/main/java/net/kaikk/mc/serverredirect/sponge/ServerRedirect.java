@@ -1,12 +1,14 @@
 package net.kaikk.mc.serverredirect.sponge;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.WeakHashMap;
-
+import com.google.inject.Inject;
+import net.kaikk.mc.kaiscommons.sponge.PluginInfo;
+import net.kaikk.mc.serverredirect.sponge.event.PlayerRedirectEvent;
+import net.kaikk.mc.serverredirect.sponge.event.PlayerWithRedirectJoinEvent;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
@@ -19,67 +21,75 @@ import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
+import org.spongepowered.api.text.Text;
 
-import com.google.inject.Inject;
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
 
-import net.kaikk.mc.serverredirect.sponge.event.PlayerRedirectEvent;
-import net.kaikk.mc.serverredirect.sponge.event.PlayerWithRedirectJoinEvent;
-
-@Plugin(id=PluginInfo.id, name = PluginInfo.name, version = PluginInfo.version, description = PluginInfo.description, authors = {PluginInfo.author})
+@Plugin(id= PluginInfo.id, name = PluginInfo.name, version = PluginInfo.version, description = PluginInfo.description, authors = {PluginInfo.author})
 public class ServerRedirect implements RawDataListener {
 	protected static ServerRedirect instance;
 
 	protected IndexedMessageChannel channel;
 	protected Set<Player> playersWithMod = Collections.newSetFromMap(new WeakHashMap<Player, Boolean>());
 	protected SpongeExecutorService sync;
-	
+
 	@Inject
 	protected Logger logger;
 
 	@Inject
 	protected PluginContainer container;
-	
+
 	@Listener
 	public void onServerStart(GameInitializationEvent event) throws Exception {
 		instance = this;
-		
+
 		sync = Sponge.getScheduler().createSyncExecutor(this);
 
 		log("Loading "+PluginInfo.name+" v"+PluginInfo.version);
 
 		// Register command
-		Sponge.getCommandManager().register(this, new CommandExec(), PluginInfo.id, "redirect");
+        CommandSpec command = CommandSpec.builder()
+                .arguments(
+                        GenericArguments.string(Text.of("address")),
+                        GenericArguments.allOf(GenericArguments.player(Text.of("player"))))
+                .executor(new CommandExec())
+                .permission("serverredirect.command.redirect")
+                .build();
+
+        Sponge.getCommandManager().register(this, command, PluginInfo.id, "redirect");
 
 		channel = Sponge.getChannelRegistrar().createChannel(this, "ServerRedirect");
 		channel.registerMessage(RedirectModMessage.class, 0);
 		channel.addHandler(RedirectModMessage.class, Type.SERVER, new RedirectModMessageHandler());
 		channel.registerMessage(RedirectAddressMessage.class, 1);
-		
+
 		log("Load complete");
 	}
-	
+
 	/**
 	 * Checks if the player has this mod installed.
-	 * 
+	 *
 	 * @param player the player
 	 * @return whether the player has the mod installed
 	 */
 	public static boolean doesPlayerHaveThisMod(Player player) {
 		return instance.playersWithMod.contains(player);
 	}
-	
-	
+
+
 	/**
 	 * @return the set with all the Player having this mod.
 	 */
 	public static Set<Player> getPlayersWithMod() {
 		return instance.playersWithMod;
 	}
-	
+
 	/**
 	 * Connects the specified player to the specified server address.<br>
 	 * The client must have this mod in order for this to work.
-	 * 
+	 *
 	 * @param serverAddress the new server address the player should connect to
 	 * @param player the player's instance
 	 * @return true if the redirect message was sent to the specified player
@@ -88,18 +98,18 @@ public class ServerRedirect implements RawDataListener {
 		if (!doesPlayerHaveThisMod(player)) {
 			return false;
 		}
-		
+
 		if (Sponge.getEventManager().post(new PlayerRedirectEvent(player, serverAddress, instance.getCause()))) {
 			return false;
 		}
-		
+
 		instance.channel.sendTo(player, new RedirectAddressMessage(serverAddress));
 		return true;
 	}
-	
+
 	/**
 	 * Connects all players with this mod on their client to the specified server address.
-	 * 
+	 *
 	 * @param serverAddress the new server address the players should connect to
 	 */
 	public static void sendToAll(String serverAddress) {
@@ -114,7 +124,7 @@ public class ServerRedirect implements RawDataListener {
 			}
 		}
 	}
-	
+
 	@Override
 	public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 		if (connection instanceof PlayerConnection) {
@@ -137,7 +147,7 @@ public class ServerRedirect implements RawDataListener {
 			System.out.println(message);
 		}
 	}
-	
+
 	public Cause getCause() {
 		return Cause.source(container).build();
 	}
