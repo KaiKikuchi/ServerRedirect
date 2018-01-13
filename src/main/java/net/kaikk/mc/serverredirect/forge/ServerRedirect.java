@@ -44,7 +44,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 public class ServerRedirect {
 	public static final String MODID = "serverredirect";
 	public static final String NAME = "ServerRedirect";
-	public static final String VERSION = "1.3.5";
+	public static final String VERSION = "1.3.7";
 
 	// Channel to send messages between server and client... like a request from the server to the client to connect to another server address
 	public static SimpleNetworkWrapper net;
@@ -52,7 +52,6 @@ public class ServerRedirect {
 	// this set contains a list of UUIDs of the players that have this mod on their client
 	public static Set<UUID> playersWithThisMod;
 
-	// Unfortunately, I couldn't find a synchronous task scheduler on this Forge version, so I am using this instead.
 	public static LinkedBlockingQueue<Runnable> sync = new LinkedBlockingQueue<Runnable>();
 	
 	@SideOnly(Side.SERVER)
@@ -85,7 +84,6 @@ public class ServerRedirect {
 		event.registerServerCommand(new RedirectCommand());
 	}
 
-	// Unfortunately, I couldn't find a scheduler on Forge 1.7.10, so I am using this instead.
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority=EventPriority.HIGHEST)
 	public void onTick(TickEvent.ClientTickEvent event) {
