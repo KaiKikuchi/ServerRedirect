@@ -19,7 +19,7 @@ public class RedirectModMessageHandler implements IMessageHandler<RedirectModMes
 		// The server received this message from the client because they have this mod
 		final EntityPlayerMP player = ctx.getServerHandler().player;
 		
-		Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+		ServerRedirect.sync.add(new Runnable() {
 			@Override
 			public void run() {
 				try {

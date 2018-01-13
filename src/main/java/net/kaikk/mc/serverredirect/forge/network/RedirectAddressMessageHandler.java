@@ -10,7 +10,7 @@ public class RedirectAddressMessageHandler implements IMessageHandler<RedirectAd
 	@Override
 	public IMessage onMessage(final RedirectAddressMessage message, MessageContext ctx) {
 		// client got a request from the server to redirect to another address
-		Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+		ServerRedirect.sync.add(new Runnable() {
 			@Override
 			public void run() {
 				try {
