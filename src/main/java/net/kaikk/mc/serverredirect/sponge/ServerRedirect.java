@@ -39,13 +39,20 @@ public class ServerRedirect implements RawDataListener {
 	@Inject
 	protected PluginContainer container;
 	
+	protected Cause cause;
+	
 	@Listener
 	public void onServerStart(GameInitializationEvent event) throws Exception {
 		instance = this;
-		
-		sync = Sponge.getScheduler().createSyncExecutor(this);
 
 		log("Loading "+PluginInfo.name+" v"+PluginInfo.version);
+		try {
+			cause = Cause.source(container).build();
+		} catch (Throwable e) {
+			cause = null;
+		}
+		
+		sync = Sponge.getScheduler().createSyncExecutor(this);
 
 		// Register command
 		Sponge.getCommandManager().register(this, new CommandExec(), PluginInfo.id, "redirect");
@@ -139,6 +146,6 @@ public class ServerRedirect implements RawDataListener {
 	}
 	
 	public Cause getCause() {
-		return Cause.source(container).build();
+		return cause;
 	}
 }

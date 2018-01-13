@@ -18,11 +18,11 @@ public class RedirectAddressMessage implements Message {
 
 	@Override
 	public void readFrom(ChannelBuf buf) {
-		this.address = buf.readString();
+		this.address = new String(buf.array());
 	}
 
 	@Override
 	public void writeTo(ChannelBuf buf) {
-		buf.writeString(address);
+		buf.writeBytes(address.getBytes());
 	}
 }
