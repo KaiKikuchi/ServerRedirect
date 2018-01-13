@@ -1,9 +1,9 @@
 package net.kaikk.mc.serverredirect.forge;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import net.kaikk.mc.serverredirect.forge.command.RedirectCommand;
 import net.kaikk.mc.serverredirect.forge.event.PlayerRedirectEvent;
@@ -31,6 +31,8 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -40,13 +42,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ServerRedirect {
 	public static final String MODID = "serverredirect";
 	public static final String NAME = "ServerRedirect";
-	public static final String VERSION = "1.3.5";
+	public static final String VERSION = "1.3.6";
 
 	// Channel to send messages between server and client... like a request from the server to the client to connect to another server address
 	public static SimpleNetworkWrapper net;
 
 	// this set contains a list of UUIDs of the players that have this mod on their client
-	public static Set<UUID> playersWithThisMod; 
+	public static Set<UUID> playersWithThisMod;
+	
+	public static LinkedBlockingQueue<Runnable> sync = new LinkedBlockingQueue<Runnable>();
 	
 	@SideOnly(Side.SERVER)
 	@EventHandler
@@ -74,7 +78,37 @@ public class ServerRedirect {
 	public void serverLoad(FMLServerStartingEvent event) {
 		event.registerServerCommand(new RedirectCommand());
 	}
-
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent(priority=EventPriority.HIGHEST)
+	public void onTick(TickEvent.ClientTickEvent event) {
+		if (event.phase == Phase.END) {
+			Runnable r;
+			while ((r = this.sync.poll()) != null) {
+				try {
+					r.run();
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	@SideOnly(Side.SERVER)
+	@SubscribeEvent(priority=EventPriority.HIGHEST)
+	public void onTick(TickEvent.ServerTickEvent event) {
+		if (event.phase == Phase.END) {
+			Runnable r;
+			while ((r = this.sync.poll()) != null) {
+				try {
+					r.run();
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Processes the redirect client side.<br>
 	 * This basically emulates the disconnect button and a direct connection.<br>
