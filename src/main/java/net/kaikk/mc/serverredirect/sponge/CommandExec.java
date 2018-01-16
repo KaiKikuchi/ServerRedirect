@@ -3,6 +3,7 @@ package net.kaikk.mc.serverredirect.sponge;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
@@ -12,6 +13,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -24,7 +26,26 @@ public class CommandExec implements CommandCallable {
 			source.sendMessage(this.getUsage(source));
 			return CommandResult.empty();
 		}
+		
+		if (args[0].equalsIgnoreCase("playerslist")) {
+			if (!source.hasPermission("serverredirect.command.list")) {
+				source.sendMessage(Text.of(TextColors.RED, "Permission denied"));
+				return CommandResult.empty();
+			}
+			
+			StringJoiner players = new StringJoiner(", ");
+			for (Player player : ServerRedirect.instance.playersWithMod) {
+				players.add(player.getName());
+			}
+			source.sendMessage(Text.of(TextColors.GOLD, "Players with the mod: " + players.toString()));
+			return CommandResult.success();
+		}
 
+		if (!source.hasPermission("serverredirect.command.redirect")) {
+			source.sendMessage(Text.of(TextColors.RED, "Permission denied"));
+			return CommandResult.empty();
+		}
+		
 		if (args[1].equals("*")) {
 			ServerRedirect.sendToAll(args[0]);
 		} else {
@@ -52,7 +73,7 @@ public class CommandExec implements CommandCallable {
 
 	@Override
 	public boolean testPermission(CommandSource source) {
-		return source.hasPermission("serverredirect.command.redirect");
+		return true;
 	}
 
 	@Override
@@ -67,6 +88,7 @@ public class CommandExec implements CommandCallable {
 
 	@Override
 	public Text getUsage(CommandSource source) {
-		return Text.of("Usage: /redirect <address> <PlayerName|PlayerUUID|\"*\">");
+		return Text.of("Usage: /redirect <address> <PlayerName|PlayerUUID|\"*\">", Text.NEW_LINE,
+				"Usage: /redirect \"playerslist\"");
 	}
 }
