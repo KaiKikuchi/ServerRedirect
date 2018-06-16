@@ -8,7 +8,7 @@ ServerRedirect supports Forge, Bukkit/Spigot and SpongeVanilla/SpongeForge serve
 - Put the downloaded jar file in your "mods" folder
 
 ## Command
-- `/redirect <address> <PlayerName|PlayerUUID|"*">`: this command transfers the specified player (all players if * is used instead of the player name) to the specified address.
+- `/redirect <address> <PlayerName|PlayerUUID|"r=[radius]"|"*">`: this command transfers the specified player (all players if * is used instead of the player name, or all players within `[radius]`) to the specified address.
 
 ## Permission (plugin only)
 - `serverredirect.command.redirect`: allows using the /redirect command
