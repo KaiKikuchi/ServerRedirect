@@ -7,11 +7,12 @@ ServerRedirect supports Forge, Bukkit/Spigot and SpongeVanilla/SpongeForge serve
 - [Download ServerRedirect-Forge for your specific Minecraft version](https://github.com/KaiKikuchi/ServerRedirect/releases)
 - Put the downloaded jar file in your "mods" folder
 
-## Command
-- `/redirect <address> <PlayerName|PlayerUUID|"r=[radius]"|"*">`: this command transfers the specified player (all players if * is used instead of the player name, or all players within `[radius]`) to the specified address.
-
-## Permission (plugin only)
-- `serverredirect.command.redirect`: allows using the /redirect command
+## Commands and permissions
+- `/redirect playerslist` (permission: serverredirect.command.list): shows a list of players with the mod installed
+- `/redirect [address] *` (permission: serverredirect.command.redirect.all): redirects all online players to the specified address
+- `/redirect [address] r=[radius]` (permission: serverredirect.command.redirect.radius): redirects all players within the specified radius from the command sender (useful for command blocks)
+- `/redirect [address] [yourself name or uuid]` (permission: serverredirect.command.redirect.self): redirects yourself to the specified address
+- `/redirect [address] [someone else name or uuid]` (permission: serverredirect.command.redirect.others): redirects the specified player to the specified address
 
 ## Questions & Answers
 ### Why should I use this mod instead of a proxy server?
