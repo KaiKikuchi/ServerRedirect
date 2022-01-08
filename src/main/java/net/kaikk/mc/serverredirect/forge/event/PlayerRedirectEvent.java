@@ -1,22 +1,20 @@
 package net.kaikk.mc.serverredirect.forge.event;
 
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Cancelable
 public class PlayerRedirectEvent extends Event {
-	protected final EntityPlayerMP player;
+	protected final EntityPlayer player;
 	protected final String address;
 	
-	public PlayerRedirectEvent(EntityPlayerMP player, String address) {
+	public PlayerRedirectEvent(EntityPlayer player, String address) {
 		this.player = player;
 		this.address = address;
 	}
 
-	public EntityPlayerMP getPlayer() {
+	public EntityPlayer getPlayer() {
 		return player;
 	}
 
