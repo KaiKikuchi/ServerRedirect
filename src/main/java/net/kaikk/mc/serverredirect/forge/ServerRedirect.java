@@ -9,19 +9,20 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.kaikk.mc.serverredirect.forge.event.PlayerRedirectEvent;
 import net.kaikk.mc.serverredirect.forge.event.RedirectEvent;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.ConnectingScreen;
-import net.minecraft.client.gui.screen.DirtMessageScreen;
-import net.minecraft.client.gui.screen.DisconnectedScreen;
-import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.gui.screen.MultiplayerScreen;
+import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.DisconnectedScreen;
+import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.command.arguments.EntitySelector;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.server.management.PlayerList;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -31,9 +32,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 @Mod(ServerRedirect.MODID)
 public class ServerRedirect {
@@ -65,12 +66,17 @@ public class ServerRedirect {
 				);
 	}
 
-	private ArgumentBuilder<CommandSource, ?> command(SimpleChannel channel) {
+	private ArgumentBuilder<CommandSourceStack, ?> command(SimpleChannel channel) {
 		return Commands.argument("Player(s)", EntityArgument.players())
 				.then(Commands.argument("Server Address", StringArgumentType.string())
 						.executes(cs -> {
 							try {
 								String addr = cs.getArgument("Server Address", String.class);
+								if (!PacketHandler.ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
+									// The server address contains forbidden characters.
+									return 0;
+								}
+								
 								cs.getArgument("Player(s)", EntitySelector.class).findPlayers(cs.getSource()).forEach(p -> {
 									try {
 										sendTo(p, addr);
@@ -94,7 +100,7 @@ public class ServerRedirect {
 				String addr = fallbackServerAddress;
 				fallbackServerAddress = null;
 				redirect(addr);
-			} else if (mc.screen instanceof MainMenuScreen || mc.screen instanceof MultiplayerScreen) {
+			} else if (mc.screen instanceof TitleScreen || mc.screen instanceof JoinMultiplayerScreen) {
 				fallbackServerAddress = null;
 			}
 		}
@@ -120,12 +126,12 @@ public class ServerRedirect {
 			mc.level.disconnect();
 		}
 		if (mc.isLocalServer()) {
-			mc.clearLevel(new DirtMessageScreen(new TranslationTextComponent("menu.savingLevel")));
+			mc.clearLevel(new GenericDirtMessageScreen(new TranslatableComponent("menu.savingLevel")));
 		} else {
 			mc.clearLevel();
 		}
-		mc.setScreen(new MultiplayerScreen(new MainMenuScreen()));
-		mc.setScreen(new ConnectingScreen(mc.screen, mc, new ServerData("ServerRedirect", serverAddress, false)));
+		mc.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
+		ConnectScreen.startConnecting(mc.screen, mc, ServerAddress.parseString(serverAddress), new ServerData("ServerRedirect", serverAddress, false));
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -146,7 +152,7 @@ public class ServerRedirect {
 	 * @param player the player's instance
 	 * @return true if the redirect message was sent to the specified player
 	 */
-	public static boolean sendTo(ServerPlayerEntity player, String serverAddress) {
+	public static boolean sendTo(ServerPlayer player, String serverAddress) {
 		if (MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
 			return false;
 		}
@@ -162,7 +168,7 @@ public class ServerRedirect {
 	public static void sendToAll(String serverAddress) {
 		final PlayerList pl = ServerLifecycleHooks.getCurrentServer().getPlayerList();
 		
-		for (ServerPlayerEntity player : pl.getPlayers()) {
+		for (ServerPlayer player : pl.getPlayers()) {
 			if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
 				PacketHandler.REDIRECT_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
 			}
@@ -177,7 +183,7 @@ public class ServerRedirect {
 	 * @param player the player's instance
 	 * @return true if the redirect message was sent to the specified player
 	 */
-	public static boolean sendFallbackTo(ServerPlayerEntity player, String serverAddress) {
+	public static boolean sendFallbackTo(ServerPlayer player, String serverAddress) {
 		if (MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
 			return false;
 		}
@@ -193,7 +199,7 @@ public class ServerRedirect {
 	public static void sendFallbackToAll(String serverAddress) {
 		final PlayerList pl = ServerLifecycleHooks.getCurrentServer().getPlayerList();
 		
-		for (ServerPlayerEntity player : pl.getPlayers()) {
+		for (ServerPlayer player : pl.getPlayers()) {
 			if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
 				PacketHandler.FALLBACK_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
 			}

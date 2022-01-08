@@ -5,14 +5,14 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 public class PacketHandler {
 	private static final String PROTOCOL_VERSION = "1";
@@ -35,11 +35,11 @@ public class PacketHandler {
 		FALLBACK_CHANNEL.registerMessage(0, String.class, PacketHandler::encode, PacketHandler::decode, PacketHandler::handleFallback, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 	}
 
-	public static void encode(String addr, PacketBuffer buffer) {
+	public static void encode(String addr, FriendlyByteBuf buffer) {
 		buffer.writeCharSequence(addr, StandardCharsets.UTF_8);
 	}
 
-	public static String decode(PacketBuffer buffer) {
+	public static String decode(FriendlyByteBuf buffer) {
 		return buffer.toString(StandardCharsets.UTF_8);
 	}
 
