@@ -66,12 +66,15 @@ It would be much easier if this mod was included in your modpack! It would be ev
 ### Will it affect Vanilla clients?
 No, it will not. Vanilla clients can still connect to your server and play just fine!
 
+### Can players with this mod join servers without this mod or without the plugin?
+Yes, they can! Any combination of presence/absence of this mod will let players connect to servers.
+
 ### How should I set up my server with this mod?
-There are many ways to set up a server with this mod. This is a way to make a Spigot hub/lobby that allows Minecraft clients from version 1.4.7 to 1.18.1 to connect to it:
-- Download latest version of Spigot (or Paper), ProtocolSupport, and ServerRedirect-Plugin.
-- Make a hub/lobby in your Spigot (or Paper) server. Add ProtocolSupport and ServerRedirect-Plugin to the server's "plugins" folder.
-- Make one Command Block for each one of your servers, and set them with the /redirect command. Place a button on them and a Sign with the name of the server. You can also use a plugins like BossShop to make a server selector GUI.
-- You can also make command aliases, so /hub or /lobby runs the appropriate /redirect command for the player, or a fancy /servers command with the list of all your servers, or a GUI with BossShop!
+There are many ways to set a server up with this mod. If you are running a simple Forge modpack server, add the mod to your mods folder. If you are running Spigot, Paper, Cauldron, Mohist, or SpongeForge, use the server plugin instead!
+
+For networks with multiple modpacks, it is recommended to have a hub/lobby running Spigot (or Paper). Plugins to allow multiple Minecraft versions like ViaVersion/ViaBackwards and ProtocolSupport are supported and we encourage using them!
+
+Custom commands, custom GUIs (e.g. BossShop and VirtualChest), or even Command Blocks can be used to run the /redirect and /fallback commands.
 
 ### I am a modpack developer and I would like to add this mod to my modpack!
 That would be highly appreciated! You do not have to ask for any permission to use this mod, feel free to add it! I am sure all server owners will appreciate it!
