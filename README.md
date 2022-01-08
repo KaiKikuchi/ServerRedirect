@@ -53,12 +53,12 @@ Currently, ServerRedirect supports Minecraft 1.7.10 and newer versions.
 #### How are transfers not limited to Minecraft servers on my dedicated server?
 A proxy server can only transfer clients between servers configured on the same proxy server. ServerRedirect allows you to use any server address! You can transfer players to servers oversea!
 
-#### What happens if my server crashes? With proxies, players will be connected to the fallback server automatically!
-Make sure to use the /fallback command feature! When a player joins the server, make the server run the /fallback command so that every player with ServerRedirect will have a fallback server they will automatically connect to if the server crashes.
-
 ### It seems very nice... but what are the drawbacks of using this mod instead of a proxy?
 - Your players will only be transferred to other servers if they have this mod in their mods folder. All other players will still be able to connect and play just fine, but they won't be transferred to another server when the server asks them to.
 - This mod does not provide a way to exchange data between the servers on your network. You must rely on other software to make that happen.
+
+### What happens if my server crashes? With proxies, players will be connected to the fallback server automatically!
+Make sure to use the /fallback command feature! When a player joins the server, make the server run the /fallback command so that every player with ServerRedirect will have a fallback server they will automatically connect to if the server crashes.
 
 ### Players do not want to install this mod manually
 It would be much easier if this mod was included in your modpack! It would be even better if this mod was part of Forge or Minecraft! Maybe, someday! :)
