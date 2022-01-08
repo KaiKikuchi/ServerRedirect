@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        maven { url = "https://maven.minecraftforge.net" }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
@@ -11,17 +11,17 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
 
 
-version = "Forge-MC1.10.2-1.3.7"
-group= "net.kaikk.mc.forge.redirect" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "ServerRedirect"
+version = "1.4"
+group= "net.kaikk.mc.serverredirect.forge" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "ServerRedirect-ForgeMC10"
 
-sourceCompatibility = targetCompatibility = "1.6" // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
 compileJava {
-    sourceCompatibility = targetCompatibility = "1.6"
+    sourceCompatibility = targetCompatibility = "1.8"
 }
 
 minecraft {
-    version = "1.10.2-12.18.3.2185"
+    version = "1.10.2-12.18.3.2511"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.

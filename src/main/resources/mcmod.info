@@ -2,10 +2,10 @@
 {
   "modid": "serverredirect",
   "name": "ServerRedirect",
-  "description": "This mod allows servers to redirect clients to other servers. Very useful for big networks!",
+  "description": "This mod allows servers to redirect clients to other servers.",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "http://mc.kaikk.net",
+  "url": "https://github.com/KaiKikuchi/ServerRedirect",
   "updateUrl": "",
   "authorList": ["KaiNoMood"],
   "credits": "",
