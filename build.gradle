@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://maven.minecraftforge.net"
         }
         maven {
             name = "sonatype"
@@ -11,18 +11,24 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2.2'
     }
 }
 
 apply plugin: 'forge'
 
-version = "Forge-MC1.7.10-1.3.7"
-group= "net.kaikk.mc.forge.redirect" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "ServerRedirect"
+version = "1.4"
+group= "net.kaikk.mc.serverredirect.forge" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "ServerRedirect-ForgeMC7"
+
+sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = "1.8"
+}
+
 
 minecraft {
-    version = "1.7.10-10.13.4.1558-1.7.10"
+    version = "1.7.10-10.13.4.1614-1.7.10"
     runDir = "eclipse"
 }
 
