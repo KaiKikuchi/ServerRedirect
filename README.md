@@ -26,7 +26,7 @@ ServerRedirect supports Forge (1.7.10, 1.10.2, 1.12.2, 1.16.5, 1.18.1), Bukkit/S
 - It is lightweight
 - It works with all mods
 - It supports a wide range of Minecraft versions
-- Transfers are not limited to Minecraft servers on your dedicated server
+- Transfers are not limited to Minecraft servers on your dedicated servers
 
 #### How is it easier to use?
 ServerRedirect does not require any configuration file!
@@ -50,7 +50,7 @@ Proxy servers may support a limited range of Minecraft versions. ServerRedirect 
 
 Currently, ServerRedirect supports Minecraft 1.7.10 and newer versions.
 
-#### How are transfers not limited to Minecraft servers on my dedicated server?
+#### How are transfers not limited to Minecraft servers on my dedicated servers?
 A proxy server can only transfer clients between servers configured on the same proxy server. ServerRedirect allows you to use any server address! You can transfer players to servers oversea!
 
 ### It seems very nice... but what are the drawbacks of using this mod instead of a proxy?
