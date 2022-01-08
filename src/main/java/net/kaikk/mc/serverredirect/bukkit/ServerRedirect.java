@@ -1,49 +1,27 @@
 package net.kaikk.mc.serverredirect.bukkit;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.nio.charset.StandardCharsets;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.messaging.PluginMessageListener;
-import org.bukkit.scheduler.BukkitRunnable;
 
+import net.kaikk.mc.serverredirect.bukkit.commands.FallbackServerCommandExec;
+import net.kaikk.mc.serverredirect.bukkit.commands.RedirectCommandExec;
 import net.kaikk.mc.serverredirect.bukkit.event.PlayerRedirectEvent;
-import net.kaikk.mc.serverredirect.bukkit.event.PlayerWithRedirectJoinEvent;
 
-public class ServerRedirect extends JavaPlugin implements PluginMessageListener {
+public class ServerRedirect extends JavaPlugin {
 	protected static ServerRedirect instance;
-	protected Set<Player> playersWithMod = Collections.newSetFromMap(new WeakHashMap<Player, Boolean>());
 
 	@Override
 	public void onEnable() {
 		instance = this;
 
-		// commands executor
-		CommandExec ce = new CommandExec();
-		this.getDescription().getCommands().keySet().forEach((cmd) -> this.getCommand(cmd).setExecutor(ce));
+		this.getCommand("serverredirect").setExecutor(new RedirectCommandExec());
+		this.getCommand("fallbackserver").setExecutor(new FallbackServerCommandExec());
 		
-		Bukkit.getMessenger().registerOutgoingPluginChannel(this, "ServerRedirect");
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "ServerRedirect", this);
-	}
-	
-	/**
-	 * Checks if the player has this mod installed.
-	 * 
-	 * @param player the player
-	 * @return whether the player has the mod installed
-	 */
-	public static boolean doesPlayerHaveThisMod(Player player) {
-		return instance.playersWithMod.contains(player);
-	}
-	
-	/**
-	 * @return the set with all the Player having this mod.
-	 */
-	public static Set<Player> getPlayersWithMod() {
-		return instance.playersWithMod;
+		Bukkit.getMessenger().registerOutgoingPluginChannel(this, "srvredirect:red");
+		Bukkit.getMessenger().registerOutgoingPluginChannel(this, "srvredirect:fal");
 	}
 	
 	/**
@@ -55,10 +33,6 @@ public class ServerRedirect extends JavaPlugin implements PluginMessageListener 
 	 * @return true if the redirect message was sent to the specified player
 	 */
 	public static boolean sendTo(Player player, String serverAddress) {
-		if (!doesPlayerHaveThisMod(player)) {
-			return false;
-		}
-		
 		final PlayerRedirectEvent event = new PlayerRedirectEvent(player, serverAddress);
 		Bukkit.getPluginManager().callEvent(event);
 		
@@ -66,7 +40,7 @@ public class ServerRedirect extends JavaPlugin implements PluginMessageListener 
 			return false;
 		}
 		
-		player.sendPluginMessage(instance, "ServerRedirect", generateAddressMessage(serverAddress));
+		player.sendPluginMessage(instance, "srvredirect:red", generateAddressMessage(serverAddress));
 		return true;
 	}
 	
@@ -77,34 +51,33 @@ public class ServerRedirect extends JavaPlugin implements PluginMessageListener 
 	 */
 	public static void sendToAll(String serverAddress) {
 		final byte[] message = generateAddressMessage(serverAddress);
-		for (final Player player : instance.playersWithMod) {
-			if (player.isOnline()) {
-				final PlayerRedirectEvent event = new PlayerRedirectEvent(player, serverAddress);
-				Bukkit.getPluginManager().callEvent(event);
-				
-				if (!event.isCancelled()) {
-					player.sendPluginMessage(instance, "ServerRedirect", message);
-				}
+		for (final Player player : Bukkit.getOnlinePlayers()) {
+			final PlayerRedirectEvent event = new PlayerRedirectEvent(player, serverAddress);
+			Bukkit.getPluginManager().callEvent(event);
+			
+			if (!event.isCancelled()) {
+				player.sendPluginMessage(instance, "srvredirect:red", message);
 			}
 		}
 	}
 	
+	public static boolean sendFallbackTo(Player player, String serverAddress) {
+		player.sendPluginMessage(instance, "srvredirect:fal", generateAddressMessage(serverAddress));
+		return true;
+	}
+	
+	public static void sendFallbackToAll(String serverAddress) {
+		final byte[] message = generateAddressMessage(serverAddress);
+		for (final Player player : Bukkit.getOnlinePlayers()) {
+			player.sendPluginMessage(instance, "srvredirect:fal", message);
+		}
+	}
+	
 	protected static byte[] generateAddressMessage(String address) {
-		final byte[] addressBytes = address.getBytes();
+		final byte[] addressBytes = address.getBytes(StandardCharsets.UTF_8);
 		final byte[] message = new byte[addressBytes.length + 1];
-		message[0] = 1; // discriminator
+		message[0] = 0; // discriminator
 		System.arraycopy(addressBytes, 0, message, 1, addressBytes.length);
 		return message;
-	}
-
-	@Override
-	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				playersWithMod.add(player);
-				Bukkit.getPluginManager().callEvent(new PlayerWithRedirectJoinEvent(player));
-			}
-		}.runTask(this);
 	}
 }

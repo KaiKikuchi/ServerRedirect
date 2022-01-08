@@ -2,8 +2,12 @@ name: ${project.artifactId}
 main: ${package}.bukkit.${project.artifactId}
 version: ${project.version}
 author: ${developer}
+api-version: 1.13
 
 commands:
-   ${project.artifactId}:
-      description: Manage ${project.artifactId}
+   serverredirect:
       aliases: [redirect]
+      permission: serverredirect.command.redirect
+   fallbackserver:
+      aliases: [fallback]
+      permission: serverredirect.command.fallback
