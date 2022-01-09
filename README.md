@@ -28,6 +28,7 @@ ServerRedirect supports Forge, Bukkit/Spigot and SpongeVanilla/SpongeForge serve
 
 These permissions are valid for the plugin version only. If you are using the Forge mod server-side, OP level 2 permission (or higher) is required. These permissions are not supposed to be granted to players. These are console/command blocks commands only.
 
+## FAQ
 ### How this mod redirects players
 - By running the /redirect command, the server will send a "transfer" packet containing the specified server address to the specified players.
 - All players receiving the packet that have the ServerRedirect mod installed will disconnect from the server, and automatically direct connect to the specified server address.
