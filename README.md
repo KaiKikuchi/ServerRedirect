@@ -1,86 +1,62 @@
 ## ServerRedirect
-This Forge mod provides a way for servers to transfer players to another server address, without a proxy server.
+This Forge mod provides a way for servers to transfer players to another server address, without the use of a proxy server.
 By using this mod, server owners can avoid mod incompatibility issues caused by proxy servers like Bungeecord, Waterfall, and Velocity.
 
-ServerRedirect supports Forge (1.7.10, 1.10.2, 1.12.2, 1.16.5, 1.18.1), Bukkit/Spigot and SpongeVanilla/SpongeForge servers.
+ServerRedirect supports Forge, Bukkit/Spigot and SpongeVanilla/SpongeForge servers.
 
 ## How to install this mod on your Minecraft client
 - [Download ServerRedirect-Forge for your specific Minecraft version](https://github.com/KaiKikuchi/ServerRedirect/releases)
 - Put the downloaded jar file in your "mods" folder
 
-## Commands and permissions
-- `/redirect [player] [server address]` (permission: serverredirect.command.redirect): redirects the specified player to the specified address
-- `/redirect r=15 [server address]` (permission: serverredirect.command.redirect): redirects all players within the specified radius from the command sender to the specified address (useful for command blocks)
-- `/redirect [target selector] [server address]` (permission: serverredirect.command.redirect): redirects all players matching the target selector (e.g. @e) to the specified address
-- `/redirect * [server address]` (permission: serverredirect.command.redirect): redirects all players on the server to the specified address
+## How to install this mod on your Minecraft server
+- If you are running Bukkit (Spigot, Paper, Cauldron, Mohist, etc.), Sponge (SpongeVanilla or SpongeForge), [download the Plugin version of this mod](https://github.com/KaiKikuchi/ServerRedirect/releases), then put the downloaded jar in the plugins folder.
+- If you are running a Forge server, [download the Forge mod version for your specific Minecraft version](https://github.com/KaiKikuchi/ServerRedirect/releases), then put the downloaded jar in the mods folder.
 
-- `/fallback [player] [server address]` (permission: serverredirect.command.fallback): sets the fallback server address for the specified player
-- `/fallback r=15 [server address]` (permission: serverredirect.command.fallback): sets the fallback server address for all players within the specified radius from the command sender (useful for command blocks)
-- `/fallback [target selector] [server address]` (permission: serverredirect.command.fallback): sets the fallback server address for all players matching the target selector (e.g. @e)
-- `/fallback * [server address]` (permission: serverredirect.command.fallback): sets the fallback server address for all players on the server
+## Commands
+- `/redirect <Target> <server address>`: redirects the specified target player(s) to the specified address
+- `/fallback <Target> <server address>`: sets the fallback server address for the specified target player(s)
 
-## Questions & Answers
-### Why should I use this mod instead of a proxy server?
-- It is easier to use
-- It is safer to use
-- It is lightweight
-- It works with all mods
-- It supports a wide range of Minecraft versions
-- You can transfer players without having to worry about the latency between proxy and Minecraft server
+The "Target" can be one of the following:
+- `Player Name/UUID`: the specified player on the server
+- `Target Selector`: a [target selector](https://minecraft.fandom.com/wiki/Target_selectors). Examples: `@a` (all players), `@a[distance=..10]` (all players within 10 blocks from the command sender)
+- `r=N`: all players within N blocks from the command sender, or from the overworld spawn if run by console. Example: `r=6` (all players within 6 blocks from the command sender). Plugin version only.
+- `*`: all players on the server. Plugin version only.
 
-#### How is it easier to use?
-ServerRedirect does not require any configuration file!
+The command sender can be a Command Block.
 
-Anything that can run the `/redirect` command as OP/Console will work:
-- Command blocks
-- Command aliases plugins (custom /hub or /lobby command)
-- Chest/Text GUI plugins (like BossShop and VirtualChest) to make a fancy server selector!
+## Permissions
+- `/redirect`: serverredirect.command.redirect
+- `/fallback`: serverredirect.command.fallback
 
-#### How is it lightweight?
-A proxy handles all connections from clients and forwards them to the servers. In order to make clients and servers communicate correctly, some packet rewriting is needed. This causes some connection latency and use of server memory/CPU. ServerRedirect will not do that: players will connect directly to the Minecraft servers.
+These permissions are **not supposed to be granted to players**. These are console/command blocks commands only.  
+These permissions are valid for the plugin version only. If you are using the Forge mod server-side, OP level 2 permission (or higher) is required.
 
-#### How is it safer?
-If the proxy has an issue or is victim of a denial of service (DDoS) attack, all your Minecraft servers will be unreachable! ServerRedirect allows you to redistribute your Minecraft servers traffic between different dedicated servers with different IP addresses and ports, making it harder for all your servers to be unreachable!
+## FAQ
+### How this mod redirects players
+- By running the /redirect command, the server will send a "transfer" packet containing the specified server address to the specified players.
+- All players receiving the packet that have the ServerRedirect mod installed will disconnect from the server, and automatically direct connect to the specified server address.
 
-#### How is it working with all mods?
-Sometimes, mods have issues caused by proxies. This requires developers and server owners to find workarounds and fixes for those issues. ServerRedirect will not interfere with mods as all it does it disconnecting players from the current server and connecting them to the server address sent by the server to the client.
+Any server address that is reachable by the players with the "Direct Connect" button can be used.
+The "transfer" packet will not affect players without the mod installed: they will simply stay connected on the current server.  
+This behaves like the transfer packet present in "Minecraft: Bedrock Edition", feature included by Mojang by default on that client. Regrettably, "Minecraft: Java Edition" is missing this feature entirely.  
+Both the redirect and fallback commands are not supposed to be run by players. They are intended for being run by the console, command blocks and other plugins. Command aliases and "server selector" GUIs are recommended (see BossShop or VirtualChest).
 
-#### How does it support a wide range of Minecraft versions?
-Proxy servers may support a limited range of Minecraft versions. ServerRedirect will work as long as the server supports the client connection. This makes it possible to have a hub/lobby that allows connection from clients with version from 1.4.7 to 1.18.1 with plugins like ProtocolSupport and ViaVersion.
+### What the fallback command is for
+The fallback command tells the clients which server address they should connect to in case they get forcefully disconnected from the server (e.g. the server crashes).
 
-Currently, ServerRedirect supports Minecraft 1.7.10 and newer versions.
+Server owners want to use this by running the fallback command automatically by the server for every player that joins the server. If the server shuts down for any reason, the players will automatically direct connect to the fallback server address specified in the fallback command.
 
-#### What latency between proxy and Minecraft server?
-Although this is not the case for the majority of the networks using proxies, sometimes server owners need to put Minecraft servers in different physical servers. This could add latency, in particular in case of network congestion or if the physical server hosting the proxy is overloaded! Sometimes, networks have servers across different regions (e.g. NA and EU servers), and due to the very high latency between regions proxies are not used to communicate between servers across different regions.
+### Reasons for using this mod instead of a proxy like Bungeecord, Waterfall or Velocity
+Forge mods don't always expect that the player is being moved from one server to another, and when a proxy transfers a player to a different server, it can cause glitches or crashes. Forge mods commonly expect to be disconnected from the server before connecting to another one. Additionally, Forge 1.13+ does not support proxies server switching. This mod solves the issue by properly disconnecting players from the server, and then connecting them to another server. This way, mods can properly handle players switching from a server to another.
 
-### It seems very nice... but what are the drawbacks of using this mod instead of a proxy?
-- Your players will only be transferred to other servers if they have this mod in their mods folder. All other players will still be able to connect and play just fine, but they won't be transferred to another server when the server asks them to.
-- This mod does not provide a way to exchange data between the servers on your network. You must rely on other software to make that happen.
+Server owners can also use a combination of a proxy and Server Redirect if they want to use all the other features proxies can provide. Still, it is suggested to look into replacing the proxy with cross-server plugins and mods.
 
-### What happens if my server crashes? With proxies, players will be connected to the fallback server automatically!
-Make sure to use the /fallback command feature! When a player joins the server, make the server run the /fallback command so that every player with ServerRedirect will have a fallback server they will automatically connect to if the server crashes.
+### Players with this mod can join servers without this mod
+Any combination of presence/absence of this mod will let players connect to servers. Players with this mod can connect to Vanilla servers as well, and players with vanilla Minecraft can also connect to servers with this mod.
 
-### Players do not want to install this mod manually
-It would be much easier if this mod was included in your modpack! It would be even better if this mod was part of Forge or Minecraft! Maybe, someday! :)
+### This mod can be added in modpacks
+Feel free to add this modpack in public and private modpacks. Asking for permission is not required. Although this mod shouldn't have any conflict with any other mod, feel free to [report conflicts here](https://github.com/KaiKikuchi/ServerRedirect/issues).  
+This project is also available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/server-redirect-new).
 
-### Will it affect Vanilla clients?
-No, it will not. Vanilla clients can still connect to your server and play just fine!
-
-### Can players with this mod join servers without this mod or without the plugin?
-Yes, they can! Any combination of presence/absence of this mod will let players connect to servers.
-
-### How should I set up my server with this mod?
-There are many ways to set a server up with this mod. If you are running a simple Forge modpack server, add the mod to your mods folder. If you are running Spigot, Paper, Cauldron, Mohist, or SpongeForge, use the server plugin instead!
-
-For networks with multiple modpacks, it is recommended to have a hub/lobby running Spigot (or Paper). Plugins to allow multiple Minecraft versions like ViaVersion/ViaBackwards and ProtocolSupport are supported and we encourage using them!
-
-Custom commands, custom GUIs (e.g. BossShop and VirtualChest), or even Command Blocks can be used to run the /redirect and /fallback commands.
-
-### I am a modpack developer and I would like to add this mod to my modpack!
-That would be highly appreciated! You do not have to ask for any permission to use this mod, feel free to add it! I am sure all server owners will appreciate it!
-
-### I am a mods/plugins developer. Can I use this mod/plugin for my mod/plugin?
-Yes, you can! Include the mod or plugin on your build path, then check the ServerRedirect class. The mod/plugin will call the PlayerRedirectEvent event (cancellable) before sending a player to another server.
-
-## License and improvements to the project
-This project is MIT licensed. Feel free to fork this project and/or suggest new features on the Issues page! If you want to push changes, please stick with the Java style (Eclipse style) I am using: tabs instead of spaces, open brackets on the same line.
+### License and improvements to the project
+This project is MIT licensed. Feel free to fork this project and/or suggest new features on [the Issues page](https://github.com/KaiKikuchi/ServerRedirect/issues)! If you want to push changes, please stick with the Java style (Eclipse style) I am using: tabs instead of spaces, open brackets on the same line.
