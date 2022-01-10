@@ -19,7 +19,7 @@ ServerRedirect supports Forge, Bukkit/Spigot and SpongeVanilla/SpongeForge serve
 The "Target" can be one of the following:
 - `Player Name/UUID`: the specified player on the server
 - `Target Selector`: a [target selector](https://minecraft.fandom.com/wiki/Target_selectors). Examples: `@a` (all players), `@a[distance=..10]` (all players within 10 blocks from the command sender)
-- `r=N`: all players within N blocks from the command sender, or from the overworld spawn if run by console. Plugin version only.
+- `r=N`: all players within N blocks from the command sender, or from the overworld spawn if run by console. Example: `r=6` (all players within 6 blocks from the command sender). Plugin version only.
 - `*`: all players on the server. Plugin version only.
 
 The command sender can be a Command Block.
