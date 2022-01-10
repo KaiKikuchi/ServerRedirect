@@ -41,7 +41,8 @@ public abstract class AbstractAddressCommandExec implements CommandCallable {
 		}
 		
 		if (args[0].length() >= 3 && args[0].startsWith("r=")) {
-			double selectorDistance = Double.valueOf(args[0].substring(2));
+			double distance = Double.valueOf(args[0].substring(2));
+			distance *= distance;
 			
 			Location<World> l;
 			Entity e = null;
@@ -57,7 +58,7 @@ public abstract class AbstractAddressCommandExec implements CommandCallable {
 
 			Vector3d v = l.getPosition();
 			for (Player p : l.getExtent().getPlayers()) {
-				if (p.getLocation().getPosition().distanceSquared(v) <= selectorDistance) {
+				if (p.getLocation().getPosition().distanceSquared(v) <= distance) {
 					handler(p, args[1]);
 				}
 			}

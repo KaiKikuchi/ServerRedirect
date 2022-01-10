@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.kaikk.mc</groupId>
 	<artifactId>ServerRedirect</artifactId>
-	<version>Plugin-1.4</version>
+	<version>Plugin-1.4a</version>
 	<licenses>
 		<license>
 			<name>GPL v3 License</name>

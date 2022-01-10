@@ -80,4 +80,8 @@ public class ServerRedirect extends JavaPlugin {
 		System.arraycopy(addressBytes, 0, message, 1, addressBytes.length);
 		return message;
 	}
+	
+	public static ServerRedirect instance() {
+		return instance;
+	}
 }
