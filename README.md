@@ -13,20 +13,23 @@ ServerRedirect supports Forge, Bukkit/Spigot and SpongeVanilla/SpongeForge serve
 - If you are running a Forge server, [download the Forge mod version for your specific Minecraft version](https://github.com/KaiKikuchi/ServerRedirect/releases), then put the downloaded jar in the mods folder.
 
 ## Commands
-- `/redirect [player] [server address]`: redirects the specified player to the specified address
-- `/redirect r=15 [server address]`: redirects all players within the specified radius from the command sender to the specified address (useful for command blocks)
-- `/redirect [target selector] [server address]`: redirects all players matching the target selector (e.g. @e) to the specified address
-- `/redirect * [server address]`: redirects all players on the server to the specified addres
-- `/fallback [player] [server address]`: sets the fallback server address for the specified player
-- `/fallback r=15 [server address]`: sets the fallback server address for all players within the specified radius from the command sender (useful for command blocks)
-- `/fallback [target selector] [server address]`: sets the fallback server address for all players matching the target selector (e.g. @e)
-- `/fallback * [server address]`: sets the fallback server address for all players on the server
+- `/redirect <Target> <server address>`: redirects the specified target player(s) to the specified address
+- `/fallback <Target> <server address>`: sets the fallback server address for the specified target player(s)
+
+The "Target" can be one of the following:
+- `Player Name/UUID`: the specified player on the server
+- `Target Selector`: a [target selector](https://minecraft.fandom.com/wiki/Target_selectors). Examples: `@a` (all players), `@a[distance=..10]` (all players within 10 blocks from the command sender)
+- `r=N`: all players within N blocks from the command sender, or from the overworld spawn if run by console. Plugin version only.
+- `*`: all players on the server. Plugin version only.
+
+The command sender can be a Command Block.
 
 ## Permissions
 - `/redirect`: serverredirect.command.redirect
 - `/fallback`: serverredirect.command.fallback
 
-These permissions are valid for the plugin version only. If you are using the Forge mod server-side, OP level 2 permission (or higher) is required. These permissions are not supposed to be granted to players. These are console/command blocks commands only.
+These permissions are **not supposed to be granted to players**. These are console/command blocks commands only.  
+These permissions are valid for the plugin version only. If you are using the Forge mod server-side, OP level 2 permission (or higher) is required.
 
 ## FAQ
 ### How this mod redirects players
