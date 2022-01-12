@@ -56,7 +56,7 @@ Any combination of presence/absence of this mod will let players connect to serv
 
 ### This mod can be added in modpacks
 Feel free to add this modpack in public and private modpacks. Asking for permission is not required. Although this mod shouldn't have any conflict with any other mod, feel free to [report conflicts here](https://github.com/KaiKikuchi/ServerRedirect/issues).  
-This project is also available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/server-redirect-new).
+This project is also available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/server-redirect).
 
 ### License and improvements to the project
 This project is MIT licensed. Feel free to fork this project and/or suggest new features on [the Issues page](https://github.com/KaiKikuchi/ServerRedirect/issues)! If you want to push changes, please stick with the Java style (Eclipse style) I am using: tabs instead of spaces, open brackets on the same line.
