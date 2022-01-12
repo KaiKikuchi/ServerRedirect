@@ -16,7 +16,7 @@ public abstract class AbstractAddressCommand implements ICommand {
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) {
 		if (args.length < 2) {
-			//sender.addChatMessage(new TextComponentString(this.getUsage(sender)));
+			sender.addChatMessage(new ChatComponentText(this.getCommandUsage(sender)));
 			return;
 		}
 		
