@@ -21,7 +21,7 @@ public abstract class AbstractAddressCommand implements ICommand {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length < 2) {
-			//sender.addChatMessage(new TextComponentString(this.getUsage(sender)));
+			sender.addChatMessage(new TextComponentString(this.getCommandUsage(sender)));
 			return;
 		}
 		
