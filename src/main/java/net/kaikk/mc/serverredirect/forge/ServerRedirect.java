@@ -21,6 +21,7 @@ import net.minecraft.command.arguments.EntityArgument;
 import net.minecraft.command.arguments.EntitySelector;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -82,6 +83,11 @@ public class ServerRedirect {
 						.executes(cs -> {
 							try {
 								String addr = cs.getArgument("Server Address", String.class);
+								if (!PacketHandler.ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
+									cs.getSource().sendFailure(new StringTextComponent("Invalid Server Address"));
+									return 0;
+								}
+								
 								cs.getArgument("Player(s)", EntitySelector.class).findPlayers(cs.getSource()).forEach(p -> {
 									try {
 										sendTo(p, addr);
