@@ -59,7 +59,18 @@ public class ServerRedirect {
 				.then(command(PacketHandler.REDIRECT_CHANNEL))
 				);
 		event.getDispatcher().register(
+				Commands.literal("redirect")
+				.requires(cs -> cs.hasPermission(2))
+				.then(command(PacketHandler.REDIRECT_CHANNEL))
+				);
+		
+		event.getDispatcher().register(
 				Commands.literal("fallbackserver")
+				.requires(cs -> cs.hasPermission(2))
+				.then(command(PacketHandler.FALLBACK_CHANNEL))
+				);
+		event.getDispatcher().register(
+				Commands.literal("fallback")
 				.requires(cs -> cs.hasPermission(2))
 				.then(command(PacketHandler.FALLBACK_CHANNEL))
 				);
