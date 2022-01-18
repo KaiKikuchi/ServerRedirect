@@ -33,8 +33,6 @@ public class ServerRedirect {
 	public static final String VERSION = "1.4";
 	public static final Logger LOGGER = LogManager.getLogger();
 	@SideOnly(Side.CLIENT)
-	public static volatile String redirectServerAddress;
-	@SideOnly(Side.CLIENT)
 	public static volatile String fallbackServerAddress;
 
 	@EventHandler
@@ -52,21 +50,14 @@ public class ServerRedirect {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event) {
-		if (redirectServerAddress != null) {
-			String addr = redirectServerAddress;
-			redirectServerAddress = null;
-			fallbackServerAddress = null;
-			redirect(addr);
-		} else if (fallbackServerAddress != null) {
+		if (fallbackServerAddress != null) {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (mc.currentScreen instanceof GuiDisconnected) {
 				String addr = fallbackServerAddress;
 				fallbackServerAddress = null;
-				redirectServerAddress = null;
 				redirect(addr);
 			} else if (mc.currentScreen instanceof GuiMainMenu || mc.currentScreen instanceof GuiMultiplayer) {
 				fallbackServerAddress = null;
-				redirectServerAddress = null;
 			}
 		}
 	}
@@ -107,16 +98,6 @@ public class ServerRedirect {
 	@SideOnly(Side.CLIENT)
 	public static void setFallbackServerAddress(String fallbackServerAddress) {
 		ServerRedirect.fallbackServerAddress = fallbackServerAddress;
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static String getRedirectServerAddress() {
-		return redirectServerAddress;
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void setRedirectServerAddress(String redirectServerAddress) {
-		ServerRedirect.redirectServerAddress = redirectServerAddress;
 	}
 	
 	/**
