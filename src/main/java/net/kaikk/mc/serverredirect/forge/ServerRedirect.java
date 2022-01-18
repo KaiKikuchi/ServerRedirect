@@ -108,13 +108,17 @@ public class ServerRedirect {
 
 	/**
 	 * Processes the redirect client side.<br>
-	 * This simulates clicking the disconnect button and a direct connection to the specified server address.<br>
-	 * Must run on client tick.
+	 * This simulates clicking the disconnect button and a direct connection to the specified server address.
 	 * 
 	 * @param serverAddress the new server address this client should connect to
+	 * @throws IllegalStateException if called while not in the main thread
 	 */
 	@OnlyIn(Dist.CLIENT)
 	public static void redirect(String serverAddress) {
+		if (!Minecraft.getInstance().isSameThread()) {
+			throw new IllegalStateException("Not in the main thread");
+		}
+		
 		if (MinecraftForge.EVENT_BUS.post(new RedirectEvent(serverAddress))) {
 			return;
 		}
