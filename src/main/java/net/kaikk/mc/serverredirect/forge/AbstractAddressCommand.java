@@ -26,7 +26,7 @@ public abstract class AbstractAddressCommand implements ICommand {
 		}
 		
 		if (!PacketHandler.ADDRESS_PREVALIDATOR.matcher(args[1]).matches()) {
-			sender.addChatMessage(new TextComponentString("The server address contains forbidden characters."));
+			sender.addChatMessage(new TextComponentString("Invalid Server Address"));
 			return;
 		}
 		
