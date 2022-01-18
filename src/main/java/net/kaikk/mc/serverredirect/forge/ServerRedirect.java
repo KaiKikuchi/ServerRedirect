@@ -79,7 +79,7 @@ public class ServerRedirect {
 
 	private ArgumentBuilder<CommandSourceStack, ?> command(SimpleChannel channel) {
 		return Commands.argument("Player(s)", EntityArgument.players())
-				.then(Commands.argument("Server Address", StringArgumentType.string())
+				.then(Commands.argument("Server Address", StringArgumentType.greedyString())
 						.executes(cs -> {
 							try {
 								String addr = cs.getArgument("Server Address", String.class);
