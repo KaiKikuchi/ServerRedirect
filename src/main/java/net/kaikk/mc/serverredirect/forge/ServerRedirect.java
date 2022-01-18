@@ -20,6 +20,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -84,7 +85,7 @@ public class ServerRedirect {
 							try {
 								String addr = cs.getArgument("Server Address", String.class);
 								if (!PacketHandler.ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
-									// The server address contains forbidden characters.
+									cs.getSource().sendFailure(new TextComponent("Invalid Server Address"));
 									return 0;
 								}
 								
