@@ -218,7 +218,7 @@ public class ServerRedirect {
 	public static EntityPlayerMP getPlayer(String playerName) {
 		final List<?> list = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
 		for (final Object playerObj : list) {
-			if (((EntityPlayerMP) playerObj).getCommandSenderName().equals(playerName)) {
+			if (((EntityPlayerMP) playerObj).getCommandSenderName().equalsIgnoreCase(playerName)) {
 				return ((EntityPlayerMP) playerObj);
 			}
 		}
