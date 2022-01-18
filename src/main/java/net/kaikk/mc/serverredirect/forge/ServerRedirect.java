@@ -39,15 +39,21 @@ public class ServerRedirect {
 	public static volatile String redirectServerAddress;
 	@SideOnly(Side.CLIENT)
 	public static volatile String fallbackServerAddress;
+	@SideOnly(Side.CLIENT)
+	public static Thread mcThread;
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-		// necessary for TickEvent.ClientTickEvent on Forge 1.7.10
-		FMLCommonHandler.instance().bus().register(this);
 		PacketHandler.init();
+		
+		if (event.getSide() == Side.CLIENT) {
+			// necessary for TickEvent.ClientTickEvent on Forge 1.7.10
+			FMLCommonHandler.instance().bus().register(this);
+			mcThread = Thread.currentThread();
+		}
 	}
-
+	
 	@EventHandler
 	public void serverLoad(FMLServerStartingEvent event) {
 		event.registerServerCommand(new RedirectCommand());
@@ -78,13 +84,17 @@ public class ServerRedirect {
 
 	/**
 	 * Processes the redirect client side.<br>
-	 * This simulates clicking the disconnect button and a direct connection to the specified server address.<br>
-	 * Must run on client tick.
+	 * This simulates clicking the disconnect button and a direct connection to the specified server address.
 	 * 
 	 * @param serverAddress the new server address this client should connect to
+	 * @throws IllegalStateException if called while not in the main thread
 	 */
 	@SideOnly(Side.CLIENT)
 	public static void redirect(String serverAddress) {
+		if (Thread.currentThread() != mcThread) {
+			throw new IllegalStateException("Not in the main thread");
+		}
+		
 		if (MinecraftForge.EVENT_BUS.post(new RedirectEvent(serverAddress))) {
 			return;
 		}
