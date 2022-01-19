@@ -2,21 +2,21 @@
 This Forge mod provides a way for servers to transfer players to another server address, without the use of a proxy server.
 By using this mod, server owners can avoid mod incompatibility issues caused by proxy servers like Bungeecord, Waterfall, and Velocity.
 
-ServerRedirect supports Forge, Bukkit/Spigot and SpongeVanilla/SpongeForge servers.
+ServerRedirect supports Forge, Fabric, Bukkit/Spigot and SpongeVanilla/SpongeForge servers.
 
 ## Downloads
-### Player clients
-- [Download ServerRedirect-Forge for your specific Minecraft version](https://www.curseforge.com/minecraft/mc-mods/server-redirect/files)
+### Player clients (Forge and Fabric)
+- [Download ServerRedirect-Forge or ServerRedirect-Fabric for your specific Minecraft version](https://www.curseforge.com/minecraft/mc-mods/server-redirect/files)
 - Put the downloaded jar file in your "mods" folder
 
 ### Server owners
 #### Bukkit, Spigot or Sponge based servers
 - [Download ServerRedirect-Plugin version of this mod](https://www.curseforge.com/minecraft/bukkit-plugins/server-redirect/files)
-- Put the downloaded jar file on your server's "plugins" folder
+- Put the downloaded jar file in your server's "plugins" folder
 
 #### Forge servers
 - [Download the Forge mod version for your specific Minecraft version](https://www.curseforge.com/minecraft/mc-mods/server-redirect/files)
-- Put the downloaded jar file on your server's "mods" folder
+- Put the downloaded jar file in your server's "mods" folder
 
 ## Commands
 - `/redirect <Target> <server address>`: redirects the specified target player(s) to the specified address
