@@ -1,0 +1,38 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+gradle
+gradlew*
+
+# other
+eclipse
+run
+
+# Files from Forge MDK
+forge*changelog.txt
+
+# custom
+README.txt
+.gitattributes
+changelog.txt
+CREDITS.txt
+LICENSE.txt
+MinecraftForge-*.txt
+*-fml.txt
+LICENSE-*.txt
+Paulscode*.txt

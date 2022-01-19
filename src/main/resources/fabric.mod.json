@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "serverredirect",
+  "version": "${version}",
+
+  "name": "Server Redirect",
+  "description": "This mod allows servers to redirect clients to other servers.",
+  "authors": [
+    "KaiNoMood"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/server-redirect",
+    "sources": "https://github.com/KaiKikuchi/ServerRedirect"
+  },
+
+  "license": "MIT",
+  "icon": "assets/serverredirect/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.kaikk.mc.serverredirect.fabric.ServerRedirect"
+    ]
+  },
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.16.x"
+  }
+}
