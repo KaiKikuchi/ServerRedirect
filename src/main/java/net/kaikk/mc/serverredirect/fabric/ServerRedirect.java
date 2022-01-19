@@ -19,6 +19,7 @@ import net.minecraft.client.gui.screen.ConnectScreen;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
@@ -106,8 +107,8 @@ public class ServerRedirect implements ModInitializer {
 		
 		mc.disconnect();
 
-		mc.openScreen(new MultiplayerScreen(new TitleScreen()));
-		mc.openScreen(new ConnectScreen(mc.currentScreen, mc, new ServerInfo("ServerRedirect", serverAddress, false)));
+		mc.setScreen(new MultiplayerScreen(new TitleScreen()));
+		ConnectScreen.connect(mc.currentScreen, mc, ServerAddress.parse(serverAddress), new ServerInfo("ServerRedirect", serverAddress, false));
 	}
 
 	@Environment(EnvType.CLIENT)
