@@ -1,7 +1,5 @@
 package net.kaikk.mc.serverredirect.velocity;
 
-import java.nio.charset.StandardCharsets;
-
 import org.slf4j.Logger;
 
 import com.google.inject.Inject;
@@ -13,6 +11,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 
+import net.kaikk.mc.serverredirect.Utils;
 import net.kaikk.mc.serverredirect.sponge.PluginInfo;
 import net.kaikk.mc.serverredirect.velocity.commands.FallbackCommandExec;
 import net.kaikk.mc.serverredirect.velocity.commands.RedirectCommandExec;
@@ -55,7 +54,7 @@ public class ServerRedirect {
 				return;
 			}
 			
-			player.sendPluginMessage(redirectChannel, generateAddressMessage(serverAddress));
+			player.sendPluginMessage(redirectChannel, Utils.generateAddressMessage(serverAddress));
 		});
 	}
 
@@ -65,7 +64,7 @@ public class ServerRedirect {
 	 * @param serverAddress the new server address the players should connect to
 	 */
 	public static void sendToAll(String serverAddress) {
-		final byte[] message = generateAddressMessage(serverAddress);
+		final byte[] message = Utils.generateAddressMessage(serverAddress);
 		for (final Player player : proxy().getAllPlayers()) {
 			proxy().getEventManager().fire(new PlayerRedirectEvent(player, serverAddress)).thenAccept(event -> {
 				if (event.isCancelled()) {
@@ -78,22 +77,14 @@ public class ServerRedirect {
 	}
 
 	public static void sendFallbackTo(Player player, String serverAddress) {
-		player.sendPluginMessage(fallbackChannel, generateAddressMessage(serverAddress));
+		player.sendPluginMessage(fallbackChannel, Utils.generateAddressMessage(serverAddress));
 	}
 
 	public static void sendFallbackToAll(String serverAddress) {
-		final byte[] message = generateAddressMessage(serverAddress);
+		final byte[] message = Utils.generateAddressMessage(serverAddress);
 		for (final Player player : proxy().getAllPlayers()) {
 			player.sendPluginMessage(fallbackChannel, message);
 		}
-	}
-
-	protected static byte[] generateAddressMessage(String address) {
-		final byte[] addressBytes = address.getBytes(StandardCharsets.UTF_8);
-		final byte[] message = new byte[addressBytes.length + 1];
-		message[0] = 0; // discriminator
-		System.arraycopy(addressBytes, 0, message, 1, addressBytes.length);
-		return message;
 	}
 
 	public static ServerRedirect instance() {

@@ -1,7 +1,6 @@
 package net.kaikk.mc.serverredirect.bungee;
 
-import java.nio.charset.StandardCharsets;
-
+import net.kaikk.mc.serverredirect.Utils;
 import net.kaikk.mc.serverredirect.bungee.commands.FallbackServerCommandExec;
 import net.kaikk.mc.serverredirect.bungee.commands.RedirectCommandExec;
 import net.kaikk.mc.serverredirect.bungee.event.PlayerRedirectEvent;
@@ -39,7 +38,7 @@ public class ServerRedirect extends Plugin {
 			return false;
 		}
 		
-		player.sendData("srvredirect:red", generateAddressMessage(serverAddress));
+		player.sendData("srvredirect:red", Utils.generateAddressMessage(serverAddress));
 		return true;
 	}
 	
@@ -49,7 +48,7 @@ public class ServerRedirect extends Plugin {
 	 * @param serverAddress the new server address the players should connect to
 	 */
 	public static void sendToAll(String serverAddress) {
-		final byte[] message = generateAddressMessage(serverAddress);
+		final byte[] message = Utils.generateAddressMessage(serverAddress);
 		for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 			final PlayerRedirectEvent event = new PlayerRedirectEvent(player, serverAddress);
 			ProxyServer.getInstance().getPluginManager().callEvent(event);
@@ -61,23 +60,15 @@ public class ServerRedirect extends Plugin {
 	}
 	
 	public static boolean sendFallbackTo(ProxiedPlayer player, String serverAddress) {
-		player.sendData("srvredirect:fal", generateAddressMessage(serverAddress));
+		player.sendData("srvredirect:fal", Utils.generateAddressMessage(serverAddress));
 		return true;
 	}
 	
 	public static void sendFallbackToAll(String serverAddress) {
-		final byte[] message = generateAddressMessage(serverAddress);
+		final byte[] message = Utils.generateAddressMessage(serverAddress);
 		for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 			player.sendData("srvredirect:fal", message);
 		}
-	}
-	
-	protected static byte[] generateAddressMessage(String address) {
-		final byte[] addressBytes = address.getBytes(StandardCharsets.UTF_8);
-		final byte[] message = new byte[addressBytes.length + 1];
-		message[0] = 0; // discriminator
-		System.arraycopy(addressBytes, 0, message, 1, addressBytes.length);
-		return message;
 	}
 	
 	public static ServerRedirect instance() {
