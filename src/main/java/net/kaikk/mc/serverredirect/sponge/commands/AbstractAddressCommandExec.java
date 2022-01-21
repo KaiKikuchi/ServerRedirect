@@ -40,7 +40,11 @@ public abstract class AbstractAddressCommandExec implements CommandCallable {
 			return CommandResult.empty();
 		}
 		
-		if (args[0].length() >= 3 && args[0].startsWith("r=")) {
+		if (args[0].equals("*")) {
+			for (Player player : Sponge.getServer().getOnlinePlayers()) {
+				handler(player, args[1]);
+			}
+		} else if (args[0].length() >= 3 && args[0].startsWith("r=")) {
 			double distance = Double.valueOf(args[0].substring(2));
 			distance *= distance;
 			
