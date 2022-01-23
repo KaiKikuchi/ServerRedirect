@@ -1,5 +1,11 @@
 package net.kaikk.mc.serverredirect.forge;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,6 +34,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -40,8 +49,11 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 public class ServerRedirect {
 	public static final String MODID = "serverredirect";
 	public static final Logger LOGGER = LogManager.getLogger();
+	protected static final Set<UUID> players = Collections.synchronizedSet(new HashSet<>());
 	@OnlyIn(Dist.CLIENT)
 	public static volatile String fallbackServerAddress;
+	@OnlyIn(Dist.CLIENT)
+	public static boolean connected;
 
 	public ServerRedirect() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -64,7 +76,7 @@ public class ServerRedirect {
 				.requires(cs -> cs.hasPermission(2))
 				.then(command(PacketHandler.REDIRECT_CHANNEL))
 				);
-		
+
 		event.getDispatcher().register(
 				Commands.literal("fallbackserver")
 				.requires(cs -> cs.hasPermission(2))
@@ -87,7 +99,7 @@ public class ServerRedirect {
 									cs.getSource().sendFailure(new StringTextComponent("Invalid Server Address"));
 									return 0;
 								}
-								
+
 								cs.getArgument("Player(s)", EntitySelector.class).findPlayers(cs.getSource()).forEach(p -> {
 									try {
 										sendTo(p, addr);
@@ -105,8 +117,17 @@ public class ServerRedirect {
 	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event) {
-		if (fallbackServerAddress != null) {
-			Minecraft mc = Minecraft.getInstance();
+		if (event.phase != Phase.END) {
+			return;
+		}
+
+		Minecraft mc = Minecraft.getInstance();
+		if (connected != (mc.level != null)) {
+			connected = mc.level != null;
+			if (connected) {
+				PacketHandler.ANNOUNCE_CHANNEL.sendToServer(PacketHandler.EMPTY_OBJECT);
+			}
+		} else if (fallbackServerAddress != null) {
 			if (mc.screen instanceof DisconnectedScreen) {
 				String addr = fallbackServerAddress;
 				fallbackServerAddress = null;
@@ -115,6 +136,11 @@ public class ServerRedirect {
 				fallbackServerAddress = null;
 			}
 		}
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+		players.remove(event.getPlayer().getUUID());
 	}
 
 	/**
@@ -129,7 +155,7 @@ public class ServerRedirect {
 		if (!Minecraft.getInstance().isSameThread()) {
 			throw new IllegalStateException("Not in the main thread");
 		}
-		
+
 		if (MinecraftForge.EVENT_BUS.post(new RedirectEvent(serverAddress))) {
 			return;
 		}
@@ -158,7 +184,7 @@ public class ServerRedirect {
 	public static void setFallbackServerAddress(String fallbackServerAddress) {
 		ServerRedirect.fallbackServerAddress = fallbackServerAddress;
 	}
-	
+
 	/**
 	 * Connects the specified player to the specified server address.<br>
 	 * The client must have this mod in order for this to work.
@@ -174,7 +200,7 @@ public class ServerRedirect {
 		PacketHandler.REDIRECT_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
 		return true;
 	}
-	
+
 	/**
 	 * Connects all players with this mod on their client to the specified server address.
 	 * 
@@ -182,14 +208,14 @@ public class ServerRedirect {
 	 */
 	public static void sendToAll(String serverAddress) {
 		final PlayerList pl = ServerLifecycleHooks.getCurrentServer().getPlayerList();
-		
+
 		for (ServerPlayerEntity player : pl.getPlayers()) {
 			if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
 				PacketHandler.REDIRECT_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
 			}
 		}
 	}
-	
+
 	/**
 	 * Connects the specified player to the specified server address.<br>
 	 * The client must have this mod in order for this to work.
@@ -205,7 +231,7 @@ public class ServerRedirect {
 		PacketHandler.FALLBACK_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
 		return true;
 	}
-	
+
 	/**
 	 * Connects all players with this mod on their client to the specified server address.
 	 * 
@@ -213,11 +239,70 @@ public class ServerRedirect {
 	 */
 	public static void sendFallbackToAll(String serverAddress) {
 		final PlayerList pl = ServerLifecycleHooks.getCurrentServer().getPlayerList();
-		
+
 		for (ServerPlayerEntity player : pl.getPlayers()) {
 			if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
 				PacketHandler.FALLBACK_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
 			}
 		}
+	}
+
+	/**
+	 * 
+	 * <b>WARNING:</b> this will likely return false for a player that just logged in,
+	 * as it takes some time for the client to send the announce packet to the server. 
+	 * 
+	 * @param player the player to check
+	 * @return whether the specified player is using Server Redirect
+	 */
+	public static boolean isUsingServerRedirect(ServerPlayerEntity player) {
+		return isUsingServerRedirect(player.getUUID());
+	}
+
+	/**
+	 * 
+	 * <b>WARNING:</b> this will likely return false for a player that just logged in,
+	 * as it takes some time for the client to send the announce packet to the server. 
+	 * 
+	 * @param playerId the player to check
+	 * @return whether the specified player is using Server Redirect
+	 */
+	public static boolean isUsingServerRedirect(UUID playerId) {
+		return players.contains(playerId);
+	}
+
+	/**
+	 * 
+	 * Loop through the players with this mod<br>
+	 * <br>
+	 * <b>WARNING:</b> this will likely not include a player that just logged in,
+	 * as it takes some time for the client to send the announce packet to the server. 
+	 * 
+	 * @param consumer a consumer that can do something with the player's UUID
+	 */
+	public static void forEachPlayerUsingServerRedirect(Consumer<UUID> consumer) {
+		synchronized(players) {
+			for (UUID playerId : players) {
+				consumer.accept(playerId);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * An immutable copy of the set containing the players with this mod.<br>
+	 * <br>
+	 * For better performances, try to use the following methods instead:
+	 * <ul>
+	 * <li>{@link #isUsingServerRedirect(UUID)} to check whether a player is using this mod</li>
+	 * <li>{@link #forEachPlayerUsingServerRedirect(Consumer)} to loop through the players with this mod</li>
+	 * </ul>
+	 * <b>WARNING:</b> this will likely not include a player that just logged in,
+	 * as it takes some time for the client to send the announce packet to the server. 
+	 * 
+	 * @return an immutable copy of the players with this mod
+	 */
+	public static Set<UUID> getPlayers() {
+		return Collections.unmodifiableSet(new HashSet<>(players));
 	}
 }
