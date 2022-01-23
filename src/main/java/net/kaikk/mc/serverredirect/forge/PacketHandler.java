@@ -7,7 +7,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,30 +17,24 @@ public class PacketHandler {
 	public static final Pattern ADDRESS_PREVALIDATOR = Pattern.compile("^[A-Za-z0-9-_.:]+$"); // allowed characters in a server address
 
 	public static void init() {
-		REDIRECT_CHANNEL.registerMessage(RedirectAddressMessageHandler.class, AddressMessage.class, 0, Side.CLIENT);
-		FALLBACK_CHANNEL.registerMessage(FallbackAddressMessageHandler.class, AddressMessage.class, 0, Side.CLIENT);
+		REDIRECT_CHANNEL.registerMessage(PacketHandler::onRedirectAddressMessage, AddressMessage.class, 0, Side.CLIENT);
+		FALLBACK_CHANNEL.registerMessage(PacketHandler::onFallbackAddressMessage, AddressMessage.class, 0, Side.CLIENT);
 	}
-	
-	public static class RedirectAddressMessageHandler implements IMessageHandler<AddressMessage, IMessage> {
-		@Override
-		public IMessage onMessage(final AddressMessage message, MessageContext ctx) {
-			if (ADDRESS_PREVALIDATOR.matcher(message.getAddress()).matches()) {
-				Minecraft.getMinecraft().addScheduledTask(() -> ServerRedirect.redirect(message.getAddress()));
-			}
-			return null;
+
+	public static IMessage onRedirectAddressMessage(final AddressMessage message, MessageContext ctx) {
+		if (ADDRESS_PREVALIDATOR.matcher(message.getAddress()).matches()) {
+			Minecraft.getMinecraft().addScheduledTask(() -> ServerRedirect.redirect(message.getAddress()));
 		}
+		return null;
 	}
-	
-	public static class FallbackAddressMessageHandler implements IMessageHandler<AddressMessage, IMessage> {
-		@Override
-		public IMessage onMessage(final AddressMessage message, MessageContext ctx) {
-			if (ADDRESS_PREVALIDATOR.matcher(message.getAddress()).matches()) {
-				ServerRedirect.setFallbackServerAddress(message.getAddress());
-			}
-			return null;
+
+	public static IMessage onFallbackAddressMessage(final AddressMessage message, MessageContext ctx) {
+		if (ADDRESS_PREVALIDATOR.matcher(message.getAddress()).matches()) {
+			ServerRedirect.setFallbackServerAddress(message.getAddress());
 		}
+		return null;
 	}
-	
+
 	public static class AddressMessage implements IMessage {
 		private String address;
 
