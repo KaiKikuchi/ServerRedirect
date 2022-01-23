@@ -28,11 +28,19 @@ public class PacketHandler {
 			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION),
 			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION)
 			);
+	public static final SimpleChannel ANNOUNCE_CHANNEL = NetworkRegistry.newSimpleChannel(
+			new ResourceLocation("srvredirect", "ann"),
+			() -> PROTOCOL_VERSION,
+			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION),
+			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION)
+			);
 	public static final Pattern ADDRESS_PREVALIDATOR = Pattern.compile("^[A-Za-z0-9-_.:]+$"); // allowed characters in a server address
+	public static final Object EMPTY_OBJECT = new Object();
 
 	public static void init() {
 		REDIRECT_CHANNEL.registerMessage(0, String.class, PacketHandler::encode, PacketHandler::decode, PacketHandler::handleRedirect, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 		FALLBACK_CHANNEL.registerMessage(0, String.class, PacketHandler::encode, PacketHandler::decode, PacketHandler::handleFallback, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+		ANNOUNCE_CHANNEL.registerMessage(0, Object.class, PacketHandler::encodeVoid, PacketHandler::decodeVoid, PacketHandler::handleAnnounce, Optional.of(NetworkDirection.PLAY_TO_SERVER));
 	}
 
 	public static void encode(String addr, FriendlyByteBuf buffer) {
@@ -53,6 +61,21 @@ public class PacketHandler {
 	public static void handleFallback(String addr, Supplier<Context> ctx) {
 		if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT && ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
 			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ServerRedirect.setFallbackServerAddress(addr)));
+		}
+		ctx.get().setPacketHandled(true);
+	}
+
+	public static void encodeVoid(Object v, FriendlyByteBuf buffer) {
+
+	}
+
+	public static Object decodeVoid(FriendlyByteBuf buffer) {
+		return null;
+	}
+
+	public static void handleAnnounce(Object v, Supplier<Context> ctx) {
+		if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
+			ServerRedirect.players.add(ctx.get().getSender().getUUID());
 		}
 		ctx.get().setPacketHandled(true);
 	}
