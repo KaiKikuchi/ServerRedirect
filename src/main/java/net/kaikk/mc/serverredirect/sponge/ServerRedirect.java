@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform.Type;
@@ -117,6 +118,65 @@ public class ServerRedirect {
 		for (final Player player : Sponge.getServer().getOnlinePlayers()) {
 			instance.channelRedirect.sendTo(player, message);
 		}
+	}
+
+	/**
+	 * 
+	 * <b>WARNING:</b> this will likely return false for a player that just logged in,
+	 * as it takes some time for the client to send the announce packet to the server. 
+	 * 
+	 * @param player the player to check
+	 * @return whether the specified player is using Server Redirect
+	 */
+	public static boolean isUsingServerRedirect(Player player) {
+		return isUsingServerRedirect(player.getUniqueId());
+	}
+
+	/**
+	 * 
+	 * <b>WARNING:</b> this will likely return false for a player that just logged in,
+	 * as it takes some time for the client to send the announce packet to the server. 
+	 * 
+	 * @param playerId the player to check
+	 * @return whether the specified player is using Server Redirect
+	 */
+	public static boolean isUsingServerRedirect(UUID playerId) {
+		return players.contains(playerId);
+	}
+
+	/**
+	 * 
+	 * Loop through the players with this mod<br>
+	 * <br>
+	 * <b>WARNING:</b> this will likely not include a player that just logged in,
+	 * as it takes some time for the client to send the announce packet to the server. 
+	 * 
+	 * @param consumer a consumer that can do something with the player's UUID
+	 */
+	public static void forEachPlayerUsingServerRedirect(Consumer<UUID> consumer) {
+		synchronized(players) {
+			for (UUID playerId : players) {
+				consumer.accept(playerId);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * An immutable copy of the set containing the players with this mod.<br>
+	 * <br>
+	 * For better performances, try to use the following methods instead:
+	 * <ul>
+	 * <li>{@link #isUsingServerRedirect(UUID)} to check whether a player is using this mod</li>
+	 * <li>{@link #forEachPlayerUsingServerRedirect(Consumer)} to loop through the players with this mod</li>
+	 * </ul>
+	 * <b>WARNING:</b> this will likely not include a player that just logged in,
+	 * as it takes some time for the client to send the announce packet to the server. 
+	 * 
+	 * @return an immutable copy of the players with this mod
+	 */
+	public static Set<UUID> getPlayers() {
+		return Collections.unmodifiableSet(new HashSet<>(players));
 	}
 
 	public Logger logger() {
