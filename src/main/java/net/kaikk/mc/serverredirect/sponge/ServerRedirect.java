@@ -1,15 +1,22 @@
 package net.kaikk.mc.serverredirect.sponge;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import org.slf4j.Logger;
+import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.network.ChannelBinding.IndexedMessageChannel;
+import org.spongepowered.api.network.PlayerConnection;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
 
 import com.google.inject.Inject;
 
@@ -21,17 +28,17 @@ import net.kaikk.mc.serverredirect.sponge.event.PlayerRedirectEvent;
 public class ServerRedirect {
 	protected static ServerRedirect instance;
 
-	protected IndexedMessageChannel channelRedirect, channelFallback;
-	protected SpongeExecutorService sync;
-	
+	protected IndexedMessageChannel channelRedirect, channelFallback, channelAnnounce;
+	protected static Set<UUID> players = Collections.synchronizedSet(new HashSet<>());
+
 	@Inject
 	protected Logger logger;
 
 	@Inject
 	protected PluginContainer container;
-	
+
 	protected Cause cause;
-	
+
 	@Listener
 	public void onServerStart(GameInitializationEvent event) throws Exception {
 		instance = this;
@@ -42,8 +49,6 @@ public class ServerRedirect {
 		} catch (Throwable e) {
 			cause = null;
 		}
-		
-		sync = Sponge.getScheduler().createSyncExecutor(this);
 
 		Sponge.getCommandManager().register(this, new RedirectCommandExec(), "serverredirect", "redirect");
 		Sponge.getCommandManager().register(this, new FallbackCommandExec(), "fallbackserver", "fallback");
@@ -53,10 +58,24 @@ public class ServerRedirect {
 
 		channelFallback = Sponge.getChannelRegistrar().createChannel(this, "srvredirect:fal");
 		channelFallback.registerMessage(ServerAddressMessage.class, 0);
-		
+
+		channelAnnounce = Sponge.getChannelRegistrar().createChannel(this, "srvredirect:ann");
+		channelAnnounce.registerMessage(VoidMessage.class, 0, Type.SERVER, (m, rc, pt) -> {
+			try {
+				if (rc instanceof PlayerConnection) {
+					Player p = ((PlayerConnection) rc).getPlayer();
+					players.add(p.getUniqueId());
+				}
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		});
+
+		Sponge.getEventManager().registerListener(this, ClientConnectionEvent.Disconnect.class, e -> players.remove(e.getTargetEntity().getUniqueId()));
+
 		log("Load complete");
 	}
-	
+
 	/**
 	 * Connects the specified player to the specified server address.<br>
 	 * The client must have this mod in order for this to work.
@@ -69,11 +88,11 @@ public class ServerRedirect {
 		if (Sponge.getEventManager().post(new PlayerRedirectEvent(player, serverAddress, instance.getCause()))) {
 			return false;
 		}
-		
+
 		instance.channelRedirect.sendTo(player, new ServerAddressMessage(serverAddress));
 		return true;
 	}
-	
+
 	/**
 	 * Connects all players with this mod on their client to the specified server address.
 	 * 
@@ -87,18 +106,18 @@ public class ServerRedirect {
 			}
 		}
 	}
-	
+
 	public static void sendFallbackTo(Player player, String serverAddress) {
 		instance.channelRedirect.sendTo(player, new ServerAddressMessage(serverAddress));
 	}
-	
+
 	public static void sendFallbackToAll(String serverAddress) {
 		final ServerAddressMessage message = new ServerAddressMessage(serverAddress);
 		for (final Player player : Sponge.getServer().getOnlinePlayers()) {
 			instance.channelRedirect.sendTo(player, message);
 		}
 	}
-	
+
 	public Logger logger() {
 		return logger;
 	}
@@ -110,7 +129,7 @@ public class ServerRedirect {
 			System.out.println(message);
 		}
 	}
-	
+
 	public Cause getCause() {
 		return cause;
 	}

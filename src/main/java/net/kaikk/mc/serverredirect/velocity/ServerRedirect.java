@@ -1,9 +1,16 @@
 package net.kaikk.mc.serverredirect.velocity;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.DisconnectEvent;
+import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
@@ -23,9 +30,11 @@ public class ServerRedirect {
 
 	private final ProxyServer proxy;
 	private final Logger logger;
-	
+
 	public static final ChannelIdentifier redirectChannel = MinecraftChannelIdentifier.create("srvredirect", "red");
 	public static final ChannelIdentifier fallbackChannel = MinecraftChannelIdentifier.create("srvredirect", "fal");
+	public static final ChannelIdentifier announceChannel = MinecraftChannelIdentifier.create("srvredirect", "ann");
+	protected static Set<UUID> players = Collections.synchronizedSet(new HashSet<>());
 
 	@Inject
 	public ServerRedirect(ProxyServer server, Logger logger) {
@@ -39,6 +48,20 @@ public class ServerRedirect {
 	public void onProxyInitialization(ProxyInitializeEvent event) {
 		proxy.getCommandManager().register("serverredirect", new RedirectCommandExec(), "redirect");
 		proxy.getCommandManager().register("fallbackserver", new FallbackCommandExec(), "fallback");
+
+		proxy.getChannelRegistrar().register(announceChannel);
+
+		proxy.getEventManager().register(this, PluginMessageEvent.class, e -> {
+			try {
+				if (e.getIdentifier().equals(announceChannel) && e.getSource() instanceof Player) {
+					players.add(((Player) e.getSource()).getUniqueId());
+				}
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		});
+
+		proxy.getEventManager().register(this, DisconnectEvent.class, e -> players.remove(e.getPlayer().getUniqueId()));
 	}
 
 	/**
@@ -53,7 +76,7 @@ public class ServerRedirect {
 			if (event.isCancelled()) {
 				return;
 			}
-			
+
 			player.sendPluginMessage(redirectChannel, Utils.generateAddressMessage(serverAddress));
 		});
 	}
@@ -70,7 +93,7 @@ public class ServerRedirect {
 				if (event.isCancelled()) {
 					return;
 				}
-				
+
 				player.sendPluginMessage(redirectChannel, message);
 			});
 		}
@@ -90,11 +113,11 @@ public class ServerRedirect {
 	public static ServerRedirect instance() {
 		return instance;
 	}
-	
+
 	public static ProxyServer proxy() {
 		return instance.proxy;
 	}
-	
+
 	public static Logger logger() {
 		return instance.logger;
 	}
