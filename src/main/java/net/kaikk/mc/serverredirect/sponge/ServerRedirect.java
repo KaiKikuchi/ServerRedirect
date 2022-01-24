@@ -12,7 +12,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.network.ChannelBinding.IndexedMessageChannel;
 import org.spongepowered.api.network.PlayerConnection;
@@ -42,7 +42,7 @@ public class ServerRedirect {
 	protected Cause cause;
 
 	@Listener
-	public void onServerStart(GameInitializationEvent event) throws Exception {
+	public void onServerStart(GameStartingServerEvent event) throws Exception {
 		instance = this;
 
 		log("Loading "+PluginInfo.name+" v"+PluginInfo.version);
