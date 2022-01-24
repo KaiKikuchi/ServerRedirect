@@ -20,6 +20,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 
 import com.google.inject.Inject;
 
+import net.kaikk.mc.serverredirect.PluginInfo;
 import net.kaikk.mc.serverredirect.sponge.commands.FallbackCommandExec;
 import net.kaikk.mc.serverredirect.sponge.commands.RedirectCommandExec;
 import net.kaikk.mc.serverredirect.sponge.event.PlayerRedirectEvent;

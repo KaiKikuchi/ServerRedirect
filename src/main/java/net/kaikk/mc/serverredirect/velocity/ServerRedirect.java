@@ -18,8 +18,8 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 
+import net.kaikk.mc.serverredirect.PluginInfo;
 import net.kaikk.mc.serverredirect.Utils;
-import net.kaikk.mc.serverredirect.sponge.PluginInfo;
 import net.kaikk.mc.serverredirect.velocity.commands.FallbackCommandExec;
 import net.kaikk.mc.serverredirect.velocity.commands.RedirectCommandExec;
 import net.kaikk.mc.serverredirect.velocity.event.PlayerRedirectEvent;

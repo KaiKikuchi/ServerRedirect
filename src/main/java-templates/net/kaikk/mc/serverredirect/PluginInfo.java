@@ -1,4 +1,4 @@
-package ${package}.sponge;
+package ${package};
 
 public class PluginInfo {
 	public static final String id = "${lowercaseid}";
