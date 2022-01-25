@@ -34,6 +34,10 @@ public class ServerRedirect extends JavaPlugin implements Listener {
 		Bukkit.getMessenger().registerIncomingPluginChannel(this, "srvredirect:ann", ServerRedirect::onAnnounceReceived);
 
 		Bukkit.getPluginManager().registerEvents(this, this);
+		
+		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+			new PlaceholderExpansionImpl().register();
+		}
 	}
 
 	@EventHandler

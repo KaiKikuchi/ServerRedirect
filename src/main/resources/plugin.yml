@@ -3,6 +3,7 @@ main: ${package}.bukkit.${project.artifactId}
 version: ${project.version}
 author: ${developer}
 api-version: 1.13
+softdepend: [PlaceholderAPI]
 
 commands:
    serverredirect:
