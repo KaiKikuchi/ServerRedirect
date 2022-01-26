@@ -69,27 +69,38 @@ public class ServerRedirect {
 		event.getDispatcher().register(
 				Commands.literal("serverredirect")
 				.requires(cs -> cs.hasPermission(2))
-				.then(command(PacketHandler.REDIRECT_CHANNEL))
+				.then(commandAddress(PacketHandler.REDIRECT_CHANNEL))
 				);
 		event.getDispatcher().register(
 				Commands.literal("redirect")
 				.requires(cs -> cs.hasPermission(2))
-				.then(command(PacketHandler.REDIRECT_CHANNEL))
+				.then(commandAddress(PacketHandler.REDIRECT_CHANNEL))
 				);
 
 		event.getDispatcher().register(
 				Commands.literal("fallbackserver")
 				.requires(cs -> cs.hasPermission(2))
-				.then(command(PacketHandler.FALLBACK_CHANNEL))
+				.then(commandAddress(PacketHandler.FALLBACK_CHANNEL))
 				);
 		event.getDispatcher().register(
 				Commands.literal("fallback")
 				.requires(cs -> cs.hasPermission(2))
-				.then(command(PacketHandler.FALLBACK_CHANNEL))
+				.then(commandAddress(PacketHandler.FALLBACK_CHANNEL))
+				);
+
+		event.getDispatcher().register(
+				Commands.literal("ifplayercanredirect")
+				.requires(cs -> cs.hasPermission(2))
+				.then(commandIfPlayerRedirect(false))
+				);
+		event.getDispatcher().register(
+				Commands.literal("ifplayercannotredirect")
+				.requires(cs -> cs.hasPermission(2))
+				.then(commandIfPlayerRedirect(true))
 				);
 	}
 
-	private ArgumentBuilder<CommandSource, ?> command(SimpleChannel channel) {
+	private ArgumentBuilder<CommandSource, ?> commandAddress(SimpleChannel channel) {
 		return Commands.argument("Player(s)", EntityArgument.players())
 				.then(Commands.argument("Server Address", StringArgumentType.greedyString())
 						.executes(cs -> {
@@ -103,6 +114,29 @@ public class ServerRedirect {
 								cs.getArgument("Player(s)", EntitySelector.class).findPlayers(cs.getSource()).forEach(p -> {
 									try {
 										sendTo(p, addr);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								});
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+							return 0;
+						}));
+	}
+
+	private ArgumentBuilder<CommandSource, ?> commandIfPlayerRedirect(boolean not) {
+		return Commands.argument("Player(s)", EntityArgument.players())
+				.then(Commands.argument("Command...", StringArgumentType.greedyString())
+						.executes(cs -> {
+							try {
+								String command = cs.getArgument("Command...", String.class);
+
+								cs.getArgument("Player(s)", EntitySelector.class).findPlayers(cs.getSource()).forEach(p -> {
+									try {
+										if (isUsingServerRedirect(p) != not) {
+											cs.getSource().getServer().getCommands().performCommand(cs.getSource(), command.replace("%PlayerName", p.getGameProfile().getName()).replace("%PlayerId", p.getStringUUID()));
+										}
 									} catch (Exception e) {
 										e.printStackTrace();
 									}
