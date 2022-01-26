@@ -11,6 +11,9 @@ import org.apache.logging.log4j.Logger;
 
 import net.kaikk.mc.serverredirect.forge.PacketHandler.AddressMessage;
 import net.kaikk.mc.serverredirect.forge.PacketHandler.VoidMessage;
+import net.kaikk.mc.serverredirect.forge.commands.FallbackCommand;
+import net.kaikk.mc.serverredirect.forge.commands.IfPlayerRedirectCommand;
+import net.kaikk.mc.serverredirect.forge.commands.RedirectCommand;
 import net.kaikk.mc.serverredirect.forge.event.PlayerRedirectEvent;
 import net.kaikk.mc.serverredirect.forge.event.RedirectEvent;
 import net.minecraft.client.Minecraft;
@@ -59,6 +62,8 @@ public class ServerRedirect {
 	public void serverLoad(FMLServerStartingEvent event) {
 		event.registerServerCommand(new RedirectCommand());
 		event.registerServerCommand(new FallbackCommand());
+		event.registerServerCommand(new IfPlayerRedirectCommand(false, "ifplayercanredirect"));
+		event.registerServerCommand(new IfPlayerRedirectCommand(true, "ifplayercannotredirect"));
 	}
 
 	@SideOnly(Side.CLIENT)
