@@ -1,34 +1,39 @@
-package net.kaikk.mc.serverredirect.forge;
+package net.kaikk.mc.serverredirect.forge.commands;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import net.kaikk.mc.serverredirect.forge.ServerRedirect;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.PlayerSelector;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 
-public abstract class AbstractAddressCommand implements ICommand {
-	public abstract void handler(EntityPlayerMP p, String addr);
+public abstract class AbstractPlayersTargetCommand implements ICommand {
+	public abstract void handler(EntityPlayerMP p, ICommandSender sender, String[] args);
 	
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) {
-		if (args.length < 2) {
-			sender.addChatMessage(new ChatComponentText(this.getCommandUsage(sender)));
+		if (!argumentsCheck(sender, args)) {
 			return;
 		}
 		
-		if (!PacketHandler.ADDRESS_PREVALIDATOR.matcher(args[1]).matches()) {
-			sender.addChatMessage(new ChatComponentText("Invalid Server Address"));
+		if (!canCommandSenderUseCommand(sender)) {
+			sender.addChatMessage(new ChatComponentText("Permission denied"));
 			return;
 		}
 		
-		if (args[0].charAt(0) == '@') {	
+		if (args[0].charAt(0) == '*') {
+			for (final Object playerObj : MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+				handler((EntityPlayerMP) playerObj, sender, args);
+			}
+		} else if (args[0].charAt(0) == '@') {	
 			EntityPlayerMP[] arr = PlayerSelector.matchPlayers(sender, args[0]);
 			for (EntityPlayerMP p : arr) {
-				handler(p, args[1]);
+				handler(p, sender, args);
 			}
 		} else {
 			EntityPlayerMP p;
@@ -46,8 +51,17 @@ public abstract class AbstractAddressCommand implements ICommand {
 				return;
 			}
 			
-			handler(p, args[1]);
+			handler(p, sender, args);
 		}
+	}
+	
+	public boolean argumentsCheck(ICommandSender sender, String[] args) {
+		if (args.length < 1) {
+			sender.addChatMessage(new ChatComponentText(this.getCommandUsage(sender)));
+			return false;
+		}
+		
+		return true;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -73,7 +87,7 @@ public abstract class AbstractAddressCommand implements ICommand {
 	}
 
 	@Override
-	public boolean isUsernameIndex(String[] p_82358_1_, int index) {
+	public boolean isUsernameIndex(String[] args, int index) {
 		return index == 0;
 	}
 }

@@ -1,8 +1,9 @@
-package net.kaikk.mc.serverredirect.forge;
+package net.kaikk.mc.serverredirect.forge.commands;
 
 import java.util.Arrays;
 import java.util.List;
 
+import net.kaikk.mc.serverredirect.forge.ServerRedirect;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 
@@ -18,6 +19,7 @@ public class RedirectCommand extends AbstractAddressCommand {
 	public String getCommandUsage(ICommandSender sender) {
 		return "Usage: /redirect (Player) (Server Address)";
 	}
+	
 	@Override
 	public List<String> getCommandAliases() {
 		return aliases;
