@@ -2,7 +2,7 @@
 This Forge mod provides a way for servers to transfer players to another server address, without the use of a proxy server.
 By using this mod, server owners can avoid mod incompatibility issues caused by proxy servers like Bungeecord, Waterfall, and Velocity.
 
-ServerRedirect supports Forge, Fabric, Bukkit/Spigot and SpongeVanilla/SpongeForge servers.
+ServerRedirect supports Forge, Fabric, Bukkit/Spigot, SpongeVanilla/SpongeForge, Bungeecord/Waterfall and Velocity.
 
 ## Downloads
 ### Player clients (Forge and Fabric)
