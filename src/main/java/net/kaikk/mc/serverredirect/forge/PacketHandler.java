@@ -70,7 +70,7 @@ public class PacketHandler {
 	}
 
 	public static Object decodeVoid(FriendlyByteBuf buffer) {
-		return null;
+		return EMPTY_OBJECT;
 	}
 
 	public static void handleAnnounce(Object v, Supplier<Context> ctx) {

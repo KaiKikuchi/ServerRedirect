@@ -58,11 +58,11 @@ public class ServerRedirect {
 
 	public ServerRedirect() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	private void setup(final FMLCommonSetupEvent event) {
 		PacketHandler.init();
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@SubscribeEvent
