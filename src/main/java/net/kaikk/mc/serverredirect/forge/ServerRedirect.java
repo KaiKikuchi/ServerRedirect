@@ -34,7 +34,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -57,11 +56,11 @@ public class ServerRedirect {
 
 	public ServerRedirect() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	private void setup(final FMLCommonSetupEvent event) {
 		PacketHandler.init();
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@SubscribeEvent
@@ -151,10 +150,6 @@ public class ServerRedirect {
 	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != Phase.END) {
-			return;
-		}
-
 		Minecraft mc = Minecraft.getInstance();
 		if (connected != (mc.level != null)) {
 			connected = mc.level != null;
