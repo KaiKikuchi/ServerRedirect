@@ -67,7 +67,7 @@ public class PacketHandler {
 	public final static class VoidMessage implements IMessage {
 		public static final VoidMessage INSTANCE = new VoidMessage();
 
-		private VoidMessage() {
+		public VoidMessage() {
 
 		}
 
