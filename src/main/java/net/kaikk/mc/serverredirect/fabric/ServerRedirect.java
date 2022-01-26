@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConnectScreen;
@@ -28,7 +29,11 @@ public class ServerRedirect implements ModInitializer {
 	public static final Logger LOGGER = LogManager.getLogger("serverredirect");
 	public static final Pattern ADDRESS_PREVALIDATOR = Pattern.compile("^[A-Za-z0-9-_.:]+$"); // allowed characters in a server address
 	@Environment(EnvType.CLIENT)
+	public static final Identifier announceChannelIdentifier = new Identifier("srvredirect", "ann");
+	@Environment(EnvType.CLIENT)
 	public static volatile String fallbackServerAddress;
+	@Environment(EnvType.CLIENT)
+	public static boolean connected;
 
 	@Override
 	public void onInitialize() {
@@ -66,7 +71,12 @@ public class ServerRedirect implements ModInitializer {
 		
 		ClientTickEvents.START_CLIENT_TICK.register(c -> {
 			try {
-				if (fallbackServerAddress != null) {
+				if (connected != (c.world != null)) {
+					connected = c.world != null;
+					if (connected) {
+						ClientPlayNetworking.send(announceChannelIdentifier, PacketByteBufs.empty());
+					}
+				} else if (fallbackServerAddress != null) {
 					if (c.currentScreen instanceof DisconnectedScreen) {
 						String addr = fallbackServerAddress;
 						fallbackServerAddress = null;
