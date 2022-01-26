@@ -1,41 +1,40 @@
 package net.kaikk.mc.serverredirect.bukkit.commands;
 
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import net.kaikk.mc.serverredirect.Utils;
+import net.kaikk.mc.serverredirect.bukkit.ServerRedirect;
 
-public abstract class AbstractAddressCommandExec extends AbstractPlayersTargetCommandExec {
-	protected AbstractAddressCommandExec(String permission) {
+public class IfPlayerRedirectCommandExec extends AbstractPlayersTargetCommandExec {
+	protected final boolean not;
+
+	public IfPlayerRedirectCommandExec(String permission, boolean not) {
 		super(permission);
+		this.not = not;
 	}
 
-	public abstract void handler(Player p, String addr);
-	
 	@Override
 	public void handler(Player p, CommandSender sender, Command cmd, String label, String[] args) {
-		handler(p, args[1]);
+		if (ServerRedirect.isUsingServerRedirect(p) != not) {
+			Bukkit.dispatchCommand(sender, Utils.join(args, 1).replace("%PlayerName", p.getName()).replace("%PlayerId", p.getUniqueId().toString()));
+		}
 	}
-	
+
 	@Override
 	public boolean argumentsCheck(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length < 2) {
 			sender.sendMessage(getUsage(sender, cmd, label, args));
 			return false;
 		}
-		
-		if (!Utils.ADDRESS_PREVALIDATOR.matcher(args[1]).matches()) {
-			sender.sendMessage(ChatColor.RED + "The server address contains forbidden characters.");
-			return false;
-		}
-		
+
 		return true;
 	}
-	
+
 	@Override
 	public String getUsage(CommandSender sender, Command cmd, String label, String[] args) {
-		return "Usage: /" + label + " <Player> <Server Address>";
+		return "Usage: /" + label + " <Player> <Command...>";
 	}
 }

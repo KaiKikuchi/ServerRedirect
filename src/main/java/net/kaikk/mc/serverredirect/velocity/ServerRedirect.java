@@ -22,6 +22,7 @@ import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import net.kaikk.mc.serverredirect.PluginInfo;
 import net.kaikk.mc.serverredirect.Utils;
 import net.kaikk.mc.serverredirect.velocity.commands.FallbackCommandExec;
+import net.kaikk.mc.serverredirect.velocity.commands.IfPlayerRedirectCommandExec;
 import net.kaikk.mc.serverredirect.velocity.commands.RedirectCommandExec;
 import net.kaikk.mc.serverredirect.velocity.event.PlayerRedirectEvent;
 
@@ -49,6 +50,8 @@ public class ServerRedirect {
 	public void onProxyInitialization(ProxyInitializeEvent event) {
 		proxy.getCommandManager().register("serverredirect", new RedirectCommandExec(), "redirect");
 		proxy.getCommandManager().register("fallbackserver", new FallbackCommandExec(), "fallback");
+		proxy.getCommandManager().register("ifplayercanredirect", new IfPlayerRedirectCommandExec(false));
+		proxy.getCommandManager().register("ifplayercannotredirect", new IfPlayerRedirectCommandExec(true));
 
 		proxy.getChannelRegistrar().register(announceChannel);
 

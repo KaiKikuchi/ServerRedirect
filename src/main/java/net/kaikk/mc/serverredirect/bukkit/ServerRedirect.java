@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.kaikk.mc.serverredirect.Utils;
 import net.kaikk.mc.serverredirect.bukkit.commands.FallbackServerCommandExec;
+import net.kaikk.mc.serverredirect.bukkit.commands.IfPlayerRedirectCommandExec;
 import net.kaikk.mc.serverredirect.bukkit.commands.RedirectCommandExec;
 import net.kaikk.mc.serverredirect.bukkit.event.PlayerRedirectEvent;
 
@@ -28,6 +29,8 @@ public class ServerRedirect extends JavaPlugin implements Listener {
 
 		this.getCommand("serverredirect").setExecutor(new RedirectCommandExec());
 		this.getCommand("fallbackserver").setExecutor(new FallbackServerCommandExec());
+		this.getCommand("ifplayercanredirect").setExecutor(new IfPlayerRedirectCommandExec("serverredirect.command.ifplayercanredirect", false));
+		this.getCommand("ifplayercannotredirect").setExecutor(new IfPlayerRedirectCommandExec("serverredirect.command.ifplayercannotredirect", true));
 
 		Bukkit.getMessenger().registerOutgoingPluginChannel(this, "srvredirect:red");
 		Bukkit.getMessenger().registerOutgoingPluginChannel(this, "srvredirect:fal");

@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import net.kaikk.mc.serverredirect.Utils;
 import net.kaikk.mc.serverredirect.bungee.commands.FallbackServerCommandExec;
+import net.kaikk.mc.serverredirect.bungee.commands.IfPlayerRedirectCommandExec;
 import net.kaikk.mc.serverredirect.bungee.commands.RedirectCommandExec;
 import net.kaikk.mc.serverredirect.bungee.event.PlayerRedirectEvent;
 import net.md_5.bungee.api.ProxyServer;
@@ -28,6 +29,8 @@ public class ServerRedirect extends Plugin implements Listener {
 
 		this.getProxy().getPluginManager().registerCommand(this, new RedirectCommandExec());
 		this.getProxy().getPluginManager().registerCommand(this, new FallbackServerCommandExec());
+		this.getProxy().getPluginManager().registerCommand(this, new IfPlayerRedirectCommandExec("ifplayercanredirect", "serverredirect.command.ifplayercanredirect", false));
+		this.getProxy().getPluginManager().registerCommand(this, new IfPlayerRedirectCommandExec("ifplayercannotredirect", "serverredirect.command.ifplayercannotredirect", true));
 
 		this.getProxy().getPluginManager().registerListener(this, this);
 

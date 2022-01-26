@@ -12,3 +12,7 @@ commands:
    fallbackserver:
       aliases: [fallback]
       permission: serverredirect.command.fallback
+   ifplayercanredirect:
+      permission: serverredirect.command.ifplayercanredirect
+   ifplayercannotredirect:
+      permission: serverredirect.command.ifplayercannotredirect

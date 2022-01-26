@@ -23,6 +23,7 @@ import com.google.inject.Inject;
 
 import net.kaikk.mc.serverredirect.PluginInfo;
 import net.kaikk.mc.serverredirect.sponge.commands.FallbackCommandExec;
+import net.kaikk.mc.serverredirect.sponge.commands.IfPlayerRedirectCommandExec;
 import net.kaikk.mc.serverredirect.sponge.commands.RedirectCommandExec;
 import net.kaikk.mc.serverredirect.sponge.event.PlayerRedirectEvent;
 
@@ -54,6 +55,8 @@ public class ServerRedirect {
 
 		Sponge.getCommandManager().register(this, new RedirectCommandExec(), "serverredirect", "redirect");
 		Sponge.getCommandManager().register(this, new FallbackCommandExec(), "fallbackserver", "fallback");
+		Sponge.getCommandManager().register(this, new IfPlayerRedirectCommandExec(false, "ifplayercanredirect"), "ifplayercanredirect");
+		Sponge.getCommandManager().register(this, new IfPlayerRedirectCommandExec(true, "ifplayercannotredirect"), "ifplayercannotredirect");
 
 		channelRedirect = Sponge.getChannelRegistrar().createChannel(this, "srvredirect:red");
 		channelRedirect.registerMessage(ServerAddressMessage.class, 0);
