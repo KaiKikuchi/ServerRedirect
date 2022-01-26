@@ -1,4 +1,4 @@
-package net.kaikk.mc.serverredirect.forge;
+package net.kaikk.mc.serverredirect.forge.commands;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,25 +15,28 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-public abstract class AbstractAddressCommand implements ICommand {
-	public abstract void handler(EntityPlayerMP p, String addr);
+public abstract class AbstractPlayersTargetCommand implements ICommand {
+	public abstract void handler(EntityPlayerMP p, MinecraftServer server, ICommandSender sender, String[] args);
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		if (args.length < 2) {
-			sender.addChatMessage(new TextComponentString(this.getCommandUsage(sender)));
+		if (!argumentsCheck(sender, args)) {
 			return;
 		}
 		
-		if (!PacketHandler.ADDRESS_PREVALIDATOR.matcher(args[1]).matches()) {
-			sender.addChatMessage(new TextComponentString("Invalid Server Address"));
+		if (!checkPermission(server, sender)) {
+			sender.addChatMessage(new TextComponentString("Permission denied"));
 			return;
 		}
 		
-		if (args[0].charAt(0) == '@') {	
+		if (args[0].charAt(0) == '*') {
+			for (final EntityPlayerMP p : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerList()) {
+				handler(p, server, sender, args);
+			}
+		} else if (args[0].charAt(0) == '@') {	
 			List<EntityPlayerMP> list = EntitySelector.matchEntities(sender, args[0], EntityPlayerMP.class);
 			for (EntityPlayerMP p : list) {
-				handler(p, args[1]);
+				handler(p, server, sender, args);
 			}
 		} else {
 			PlayerList pl = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
@@ -52,9 +55,19 @@ public abstract class AbstractAddressCommand implements ICommand {
 				return;
 			}
 			
-			handler(p, args[1]);
+			handler(p, server, sender, args);
 		}
 	}
+	
+	public boolean argumentsCheck(ICommandSender sender, String[] args) {
+		if (args.length < 1) {
+			sender.addChatMessage(new TextComponentString(this.getCommandUsage(sender)));
+			return false;
+		}
+		
+		return true;
+	}
+
 
 	@Override
 	public int compareTo(ICommand o) {
