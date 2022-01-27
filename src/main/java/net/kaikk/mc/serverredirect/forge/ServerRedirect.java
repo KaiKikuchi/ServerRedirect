@@ -10,18 +10,6 @@ import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.kaikk.mc.serverredirect.forge.PacketHandler.AddressMessage;
 import net.kaikk.mc.serverredirect.forge.PacketHandler.VoidMessage;
 import net.kaikk.mc.serverredirect.forge.commands.FallbackCommand;
@@ -40,6 +28,17 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod(modid = ServerRedirect.MODID, name = ServerRedirect.NAME, version = ServerRedirect.VERSION, acceptableRemoteVersions = "*")
 public class ServerRedirect {
@@ -49,23 +48,14 @@ public class ServerRedirect {
 	public static final Logger LOGGER = LogManager.getLogger();
 	protected static final Set<UUID> players = Collections.synchronizedSet(new HashSet<>());
 	@SideOnly(Side.CLIENT)
-	public static volatile String redirectServerAddress;
-	@SideOnly(Side.CLIENT)
 	public static volatile String fallbackServerAddress;
-	@SideOnly(Side.CLIENT)
-	public static Thread mcThread;
 	@SideOnly(Side.CLIENT)
 	public static boolean connected;
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-		FMLCommonHandler.instance().bus().register(this);
 		PacketHandler.init();
-
-		if (event.getSide() == Side.CLIENT) {
-			mcThread = Thread.currentThread();
-		}
 	}
 
 	@EventHandler
@@ -79,17 +69,12 @@ public class ServerRedirect {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != Phase.END) {
+		if (event.phase != Phase.START) {
 			return;
 		}
 
 		Minecraft mc = Minecraft.getMinecraft();
-		if (redirectServerAddress != null) {
-			String addr = redirectServerAddress;
-			redirectServerAddress = null;
-			fallbackServerAddress = null;
-			redirect(addr);
-		} else if (connected != (mc.theWorld != null)) {
+		if (connected != (mc.theWorld != null)) {
 			connected = mc.theWorld != null;
 			if (connected) {
 				PacketHandler.ANNOUNCE_CHANNEL.sendToServer(VoidMessage.INSTANCE);
@@ -98,11 +83,9 @@ public class ServerRedirect {
 			if (mc.currentScreen instanceof GuiDisconnected) {
 				String addr = fallbackServerAddress;
 				fallbackServerAddress = null;
-				redirectServerAddress = null;
 				redirect(addr);
 			} else if (mc.currentScreen instanceof GuiMainMenu || mc.currentScreen instanceof GuiMultiplayer) {
 				fallbackServerAddress = null;
-				redirectServerAddress = null;
 			}
 		}
 	}
@@ -121,7 +104,7 @@ public class ServerRedirect {
 	 */
 	@SideOnly(Side.CLIENT)
 	public static void redirect(String serverAddress) {
-		if (Thread.currentThread() != mcThread) {
+		if (!Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
 			throw new IllegalStateException("Not in the main thread");
 		}
 
@@ -150,16 +133,6 @@ public class ServerRedirect {
 		ServerRedirect.fallbackServerAddress = fallbackServerAddress;
 	}
 
-	@SideOnly(Side.CLIENT)
-	public static String getRedirectServerAddress() {
-		return redirectServerAddress;
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void setRedirectServerAddress(String redirectServerAddress) {
-		ServerRedirect.redirectServerAddress = redirectServerAddress;
-	}
-
 	/**
 	 * Connects the specified player to the specified server address.<br>
 	 * The client must have this mod in order for this to work.
@@ -184,12 +157,11 @@ public class ServerRedirect {
 	 */
 	public static void sendToAll(String serverAddress) {
 		final AddressMessage message = new AddressMessage(serverAddress);
-
-		@SuppressWarnings("unchecked")
-		final List<EntityPlayerMP> list = (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-		for (EntityPlayerMP player : list) {
-			if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
-				PacketHandler.REDIRECT_CHANNEL.sendTo(message, player);
+		
+		final List<?> list = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+		for (final Object playerObj : list) {
+			if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent((EntityPlayerMP) playerObj, serverAddress))) {
+				PacketHandler.REDIRECT_CHANNEL.sendTo(message, (EntityPlayerMP) playerObj);
 			}
 		}
 	}
@@ -215,10 +187,9 @@ public class ServerRedirect {
 	public static void sendFallbackToAll(String serverAddress) {
 		final AddressMessage message = new AddressMessage(serverAddress);
 
-		@SuppressWarnings("unchecked")
-		final List<EntityPlayerMP> list = (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-		for (EntityPlayerMP player : list) {
-			PacketHandler.FALLBACK_CHANNEL.sendTo(message, player);
+		final List<?> list = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+		for (final Object playerObj : list) {
+			PacketHandler.FALLBACK_CHANNEL.sendTo(message, (EntityPlayerMP) playerObj);
 		}
 	}
 
@@ -280,7 +251,7 @@ public class ServerRedirect {
 	public static Set<UUID> getPlayers() {
 		return Collections.unmodifiableSet(new HashSet<>(players));
 	}
-
+    
 	/**
 	 * Utility method for getting a player by UUID
 	 * 
@@ -294,10 +265,10 @@ public class ServerRedirect {
 				return ((EntityPlayerMP) playerObj);
 			}
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 * Utility method for getting a player by username
 	 * 
@@ -307,11 +278,11 @@ public class ServerRedirect {
 	public static EntityPlayerMP getPlayer(String playerName) {
 		final List<?> list = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
 		for (final Object playerObj : list) {
-			if (((EntityPlayerMP) playerObj).getCommandSenderName().equalsIgnoreCase(playerName)) {
+			if (((EntityPlayerMP) playerObj).getName().equals(playerName)) {
 				return ((EntityPlayerMP) playerObj);
 			}
 		}
-
+		
 		return null;
 	}
 }

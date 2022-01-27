@@ -1,19 +1,21 @@
 package net.kaikk.mc.serverredirect.forge;
 
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
-import net.kaikk.mc.serverredirect.Utils;
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class PacketHandler {
 	public static final SimpleNetworkWrapper REDIRECT_CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel("srvredirect:red");
 	public static final SimpleNetworkWrapper FALLBACK_CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel("srvredirect:fal");
 	public static final SimpleNetworkWrapper ANNOUNCE_CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel("srvredirect:ann");
+	public static final Pattern ADDRESS_PREVALIDATOR = Pattern.compile("^[A-Za-z0-9-_.:]+$"); // allowed characters in a server address
 
 	public static void init() {
 		REDIRECT_CHANNEL.registerMessage(PacketHandler::onRedirectAddressMessage, AddressMessage.class, 0, Side.CLIENT);
@@ -22,14 +24,14 @@ public class PacketHandler {
 	}
 
 	public static IMessage onRedirectAddressMessage(final AddressMessage message, MessageContext ctx) {
-		if (Utils.ADDRESS_PREVALIDATOR.matcher(message.getAddress()).matches()) {
-			ServerRedirect.setRedirectServerAddress(message.getAddress());
+		if (ADDRESS_PREVALIDATOR.matcher(message.getAddress()).matches()) {
+			Minecraft.getMinecraft().addScheduledTask(() -> ServerRedirect.redirect(message.getAddress()));
 		}
 		return null;
 	}
 
 	public static IMessage onFallbackAddressMessage(final AddressMessage message, MessageContext ctx) {
-		if (Utils.ADDRESS_PREVALIDATOR.matcher(message.getAddress()).matches()) {
+		if (ADDRESS_PREVALIDATOR.matcher(message.getAddress()).matches()) {
 			ServerRedirect.setFallbackServerAddress(message.getAddress());
 		}
 		return null;

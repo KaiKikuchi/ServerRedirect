@@ -10,6 +10,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.PlayerSelector;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 
 public abstract class AbstractPlayersTargetCommand implements ICommand {
@@ -31,7 +32,7 @@ public abstract class AbstractPlayersTargetCommand implements ICommand {
 				handler((EntityPlayerMP) playerObj, sender, args);
 			}
 		} else if (args[0].charAt(0) == '@') {	
-			EntityPlayerMP[] arr = PlayerSelector.matchPlayers(sender, args[0]);
+			List<EntityPlayerMP> arr = PlayerSelector.matchEntities(sender, args[0], EntityPlayerMP.class);
 			for (EntityPlayerMP p : arr) {
 				handler(p, sender, args);
 			}
@@ -63,10 +64,9 @@ public abstract class AbstractPlayersTargetCommand implements ICommand {
 		
 		return true;
 	}
-
-	@SuppressWarnings("rawtypes")
+	
 	@Override
-	public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
 		return Collections.emptyList();
 	}
 
@@ -76,13 +76,12 @@ public abstract class AbstractPlayersTargetCommand implements ICommand {
 	}
 	
 	@Override
-	public int compareTo(Object o) {
+	public int compareTo(ICommand o) {
 		return this.getCommandName().compareTo(((ICommand) o).getCommandName());
 	}
-
-	@SuppressWarnings("rawtypes")
+	
 	@Override
-	public List getCommandAliases() {
+	public List<String> getCommandAliases() {
 		return Collections.emptyList();
 	}
 

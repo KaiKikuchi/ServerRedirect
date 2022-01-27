@@ -21,7 +21,7 @@ public class IfPlayerRedirectCommand extends AbstractPlayersTargetCommand {
 	@Override
 	public void handler(EntityPlayerMP p, ICommandSender sender, String[] args) {
 		if (ServerRedirect.isUsingServerRedirect(p) != not) {
-			MinecraftServer.getServer().getCommandManager().executeCommand(sender, Utils.join(args, 1).replace("%PlayerName", p.getCommandSenderName()).replace("%PlayerId", p.getUniqueID().toString()));
+			MinecraftServer.getServer().getCommandManager().executeCommand(sender, Utils.join(args, 1).replace("%PlayerName", p.getName()).replace("%PlayerId", p.getUniqueID().toString()));
 		}
 	}
 	

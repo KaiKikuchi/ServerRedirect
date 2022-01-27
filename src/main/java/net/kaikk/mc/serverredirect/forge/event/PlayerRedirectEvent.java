@@ -1,8 +1,8 @@
 package net.kaikk.mc.serverredirect.forge.event;
 
-import cpw.mods.fml.common.eventhandler.Cancelable;
-import cpw.mods.fml.common.eventhandler.Event;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class PlayerRedirectEvent extends Event {
