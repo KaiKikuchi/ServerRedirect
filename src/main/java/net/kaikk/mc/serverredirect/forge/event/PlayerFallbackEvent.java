@@ -5,15 +5,15 @@ import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 /**
- * Called when the server is sending a transfer packet to the player
+ * Called when the server is sending a fallback packet to the player
  *
  */
 @Cancelable
-public class PlayerRedirectEvent extends Event {
+public class PlayerFallbackEvent extends Event {
 	protected final ServerPlayer player;
 	protected final String address;
 	
-	public PlayerRedirectEvent(ServerPlayer player, String address) {
+	public PlayerFallbackEvent(ServerPlayer player, String address) {
 		this.player = player;
 		this.address = address;
 	}

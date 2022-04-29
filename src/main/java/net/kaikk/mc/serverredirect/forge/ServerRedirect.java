@@ -13,7 +13,9 @@ import org.apache.logging.log4j.Logger;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 
-import net.kaikk.mc.serverredirect.forge.event.RedirectEvent;
+import net.kaikk.mc.serverredirect.forge.event.ClientFallbackEvent;
+import net.kaikk.mc.serverredirect.forge.event.ClientRedirectEvent;
+import net.kaikk.mc.serverredirect.forge.event.PlayerFallbackEvent;
 import net.kaikk.mc.serverredirect.forge.event.PlayerRedirectEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
@@ -191,7 +193,7 @@ public class ServerRedirect {
 			throw new IllegalStateException("Not in the main thread");
 		}
 
-		if (MinecraftForge.EVENT_BUS.post(new RedirectEvent(serverAddress))) {
+		if (MinecraftForge.EVENT_BUS.post(new ClientRedirectEvent(serverAddress))) {
 			return;
 		}
 
@@ -217,6 +219,10 @@ public class ServerRedirect {
 
 	@OnlyIn(Dist.CLIENT)
 	public static void setFallbackServerAddress(String fallbackServerAddress) {
+		if (MinecraftForge.EVENT_BUS.post(new ClientFallbackEvent(fallbackServerAddress))) {
+			return;
+		}
+		
 		ServerRedirect.fallbackServerAddress = fallbackServerAddress;
 	}
 
@@ -252,7 +258,7 @@ public class ServerRedirect {
 	}
 
 	/**
-	 * Connects the specified player to the specified server address.<br>
+	 * Sets the fallback address to the specified player.<br>
 	 * The client must have this mod in order for this to work.
 	 * 
 	 * @param serverAddress the new server address the player should connect to
@@ -260,7 +266,7 @@ public class ServerRedirect {
 	 * @return true if the redirect message was sent to the specified player
 	 */
 	public static boolean sendFallbackTo(ServerPlayer player, String serverAddress) {
-		if (MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
+		if (MinecraftForge.EVENT_BUS.post(new PlayerFallbackEvent(player, serverAddress))) {
 			return false;
 		}
 		PacketHandler.FALLBACK_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
@@ -268,7 +274,7 @@ public class ServerRedirect {
 	}
 
 	/**
-	 * Connects all players with this mod on their client to the specified server address.
+	 * Sets the fallback address to all players with this mod on their client.
 	 * 
 	 * @param serverAddress the new server address the players should connect to
 	 */
@@ -276,7 +282,7 @@ public class ServerRedirect {
 		final PlayerList pl = ServerLifecycleHooks.getCurrentServer().getPlayerList();
 
 		for (ServerPlayer player : pl.getPlayers()) {
-			if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
+			if (!MinecraftForge.EVENT_BUS.post(new PlayerFallbackEvent(player, serverAddress))) {
 				PacketHandler.FALLBACK_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
 			}
 		}
