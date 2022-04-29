@@ -4,15 +4,14 @@ import cpw.mods.fml.common.eventhandler.Cancelable;
 import cpw.mods.fml.common.eventhandler.Event;
 
 /**
- * This event is not longer called. Use ClientRedirectEvent instead
+ * Called when a fallback address is set
  *
  */
 @Cancelable
-@Deprecated
-public class RedirectEvent extends Event {
+public class ClientFallbackEvent extends Event {
 	protected final String address;
 	
-	public RedirectEvent(String address) {
+	public ClientFallbackEvent(String address) {
 		this.address = address;
 	}
 

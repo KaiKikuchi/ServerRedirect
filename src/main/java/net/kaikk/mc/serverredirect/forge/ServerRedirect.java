@@ -27,8 +27,10 @@ import net.kaikk.mc.serverredirect.forge.PacketHandler.VoidMessage;
 import net.kaikk.mc.serverredirect.forge.commands.FallbackCommand;
 import net.kaikk.mc.serverredirect.forge.commands.IfPlayerRedirectCommand;
 import net.kaikk.mc.serverredirect.forge.commands.RedirectCommand;
+import net.kaikk.mc.serverredirect.forge.event.ClientFallbackEvent;
+import net.kaikk.mc.serverredirect.forge.event.ClientRedirectEvent;
+import net.kaikk.mc.serverredirect.forge.event.PlayerFallbackEvent;
 import net.kaikk.mc.serverredirect.forge.event.PlayerRedirectEvent;
-import net.kaikk.mc.serverredirect.forge.event.RedirectEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -125,7 +127,7 @@ public class ServerRedirect {
 			throw new IllegalStateException("Not in the main thread");
 		}
 
-		if (MinecraftForge.EVENT_BUS.post(new RedirectEvent(serverAddress))) {
+		if (MinecraftForge.EVENT_BUS.post(new ClientRedirectEvent(serverAddress))) {
 			return;
 		}
 
@@ -147,6 +149,10 @@ public class ServerRedirect {
 
 	@SideOnly(Side.CLIENT)
 	public static void setFallbackServerAddress(String fallbackServerAddress) {
+		if (MinecraftForge.EVENT_BUS.post(new ClientFallbackEvent(fallbackServerAddress))) {
+			return;
+		}
+		
 		ServerRedirect.fallbackServerAddress = fallbackServerAddress;
 	}
 
@@ -195,7 +201,7 @@ public class ServerRedirect {
 	}
 
 	/**
-	 * Connects the specified player to the specified server address.<br>
+	 * Sets the fallback address to the specified player.<br>
 	 * The client must have this mod in order for this to work.
 	 * 
 	 * @param serverAddress the new server address the player should connect to
@@ -203,12 +209,16 @@ public class ServerRedirect {
 	 * @return true if the redirect message was sent to the specified player
 	 */
 	public static boolean sendFallbackTo(EntityPlayerMP player, String serverAddress) {
+		if (MinecraftForge.EVENT_BUS.post(new PlayerFallbackEvent(player, serverAddress))) {
+			return false;
+		}
+		
 		PacketHandler.FALLBACK_CHANNEL.sendTo(new AddressMessage(serverAddress), player);
 		return true;
 	}
 
 	/**
-	 * Connects all players with this mod on their client to the specified server address.
+	 * Sets the fallback address to all players with this mod on their client.
 	 * 
 	 * @param serverAddress the new server address the players should connect to
 	 */
@@ -218,7 +228,9 @@ public class ServerRedirect {
 		@SuppressWarnings("unchecked")
 		final List<EntityPlayerMP> list = (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList;
 		for (EntityPlayerMP player : list) {
-			PacketHandler.FALLBACK_CHANNEL.sendTo(message, player);
+			if (!MinecraftForge.EVENT_BUS.post(new PlayerFallbackEvent(player, serverAddress))) {
+				PacketHandler.FALLBACK_CHANNEL.sendTo(message, player);
+			}
 		}
 	}
 
@@ -279,39 +291,5 @@ public class ServerRedirect {
 	 */
 	public static Set<UUID> getPlayers() {
 		return Collections.unmodifiableSet(new HashSet<>(players));
-	}
-
-	/**
-	 * Utility method for getting a player by UUID
-	 * 
-	 * @param playerId the player's UUID
-	 * @return the EntityPlayerMP instance of the specified player, null if the player was not found.
-	 */
-	public static EntityPlayerMP getPlayer(UUID playerId) {
-		final List<?> list = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-		for (final Object playerObj : list) {
-			if (((EntityPlayerMP) playerObj).getUniqueID().equals(playerId)) {
-				return ((EntityPlayerMP) playerObj);
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Utility method for getting a player by username
-	 * 
-	 * @param playerName the player's username
-	 * @return the EntityPlayerMP instance of the specified player, null if the player was not found.
-	 */
-	public static EntityPlayerMP getPlayer(String playerName) {
-		final List<?> list = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-		for (final Object playerObj : list) {
-			if (((EntityPlayerMP) playerObj).getCommandSenderName().equalsIgnoreCase(playerName)) {
-				return ((EntityPlayerMP) playerObj);
-			}
-		}
-
-		return null;
 	}
 }
