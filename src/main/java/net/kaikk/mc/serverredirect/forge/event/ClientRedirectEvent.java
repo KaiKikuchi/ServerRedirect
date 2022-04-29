@@ -1,21 +1,18 @@
 package net.kaikk.mc.serverredirect.forge.event;
 
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
+/**
+ * Called when a transfer packet is received by the client from the server
+ *
+ */
 @Cancelable
-public class PlayerRedirectEvent extends Event {
-	protected final EntityPlayerMP player;
+public class ClientRedirectEvent extends Event {
 	protected final String address;
 	
-	public PlayerRedirectEvent(EntityPlayerMP player, String address) {
-		this.player = player;
+	public ClientRedirectEvent(String address) {
 		this.address = address;
-	}
-
-	public EntityPlayerMP getPlayer() {
-		return player;
 	}
 
 	public String getAddress() {
