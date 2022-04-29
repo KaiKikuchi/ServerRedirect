@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
@@ -41,7 +42,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 @Mod(ServerRedirect.MODID)
@@ -68,23 +68,23 @@ public class ServerRedirect {
 		event.getDispatcher().register(
 				Commands.literal("serverredirect")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(PacketHandler.REDIRECT_CHANNEL))
+				.then(commandAddress(ServerRedirect::sendTo))
 				);
 		event.getDispatcher().register(
 				Commands.literal("redirect")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(PacketHandler.REDIRECT_CHANNEL))
+				.then(commandAddress(ServerRedirect::sendTo))
 				);
 
 		event.getDispatcher().register(
 				Commands.literal("fallbackserver")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(PacketHandler.FALLBACK_CHANNEL))
+				.then(commandAddress(ServerRedirect::sendFallbackTo))
 				);
 		event.getDispatcher().register(
 				Commands.literal("fallback")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(PacketHandler.FALLBACK_CHANNEL))
+				.then(commandAddress(ServerRedirect::sendFallbackTo))
 				);
 
 		event.getDispatcher().register(
@@ -99,7 +99,7 @@ public class ServerRedirect {
 				);
 	}
 
-	private ArgumentBuilder<CommandSource, ?> commandAddress(SimpleChannel channel) {
+	private ArgumentBuilder<CommandSource, ?> commandAddress(BiConsumer<ServerPlayerEntity, String> consumer) {
 		return Commands.argument("Player(s)", EntityArgument.players())
 				.then(Commands.argument("Server Address", StringArgumentType.greedyString())
 						.executes(cs -> {
@@ -112,7 +112,7 @@ public class ServerRedirect {
 
 								cs.getArgument("Player(s)", EntitySelector.class).findPlayers(cs.getSource()).forEach(p -> {
 									try {
-										sendTo(p, addr);
+										consumer.accept(p, addr);
 									} catch (Exception e) {
 										e.printStackTrace();
 									}
