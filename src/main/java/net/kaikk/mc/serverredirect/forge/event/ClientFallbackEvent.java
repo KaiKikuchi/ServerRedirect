@@ -1,21 +1,18 @@
 package net.kaikk.mc.serverredirect.forge.event;
 
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
+/**
+ * Called when a fallback address is set
+ *
+ */
 @Cancelable
-public class PlayerRedirectEvent extends Event {
-	protected final EntityPlayerMP player;
+public class ClientFallbackEvent extends Event {
 	protected final String address;
 	
-	public PlayerRedirectEvent(EntityPlayerMP player, String address) {
-		this.player = player;
+	public ClientFallbackEvent(String address) {
 		this.address = address;
-	}
-
-	public EntityPlayerMP getPlayer() {
-		return player;
 	}
 
 	public String getAddress() {
