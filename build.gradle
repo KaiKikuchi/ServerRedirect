@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.4.3'
+version = '1.4.4'
 group = 'net.kaikk.mc.serverredirect.forge' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'ServerRedirect-ForgeMC18'
 
@@ -147,13 +147,13 @@ dependencies {
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "examplemod",
-                "Specification-Vendor"    : "examplemodsareus",
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "examplemodsareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            "Specification-Title": "serverredirect",
+            "Specification-Vendor": "KaiNoMood",
+            "Specification-Version": "1", // We are version 1 of ourselves
+            "Implementation-Title": "serverredirect",
+            "Implementation-Version": project.version,
+            "Implementation-Vendor" : "KaiNoMood",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
