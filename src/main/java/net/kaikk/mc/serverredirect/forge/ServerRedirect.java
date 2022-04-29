@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
@@ -12,8 +13,8 @@ import org.apache.logging.log4j.Logger;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 
-import net.kaikk.mc.serverredirect.forge.event.PlayerRedirectEvent;
 import net.kaikk.mc.serverredirect.forge.event.RedirectEvent;
+import net.kaikk.mc.serverredirect.forge.event.PlayerRedirectEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
@@ -43,7 +44,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 @Mod(ServerRedirect.MODID)
@@ -70,23 +70,23 @@ public class ServerRedirect {
 		event.getDispatcher().register(
 				Commands.literal("serverredirect")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(PacketHandler.REDIRECT_CHANNEL))
+				.then(commandAddress(ServerRedirect::sendTo))
 				);
 		event.getDispatcher().register(
 				Commands.literal("redirect")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(PacketHandler.REDIRECT_CHANNEL))
+				.then(commandAddress(ServerRedirect::sendTo))
 				);
 
 		event.getDispatcher().register(
 				Commands.literal("fallbackserver")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(PacketHandler.FALLBACK_CHANNEL))
+				.then(commandAddress(ServerRedirect::sendFallbackTo))
 				);
 		event.getDispatcher().register(
 				Commands.literal("fallback")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(PacketHandler.FALLBACK_CHANNEL))
+				.then(commandAddress(ServerRedirect::sendFallbackTo))
 				);
 
 		event.getDispatcher().register(
@@ -101,7 +101,7 @@ public class ServerRedirect {
 				);
 	}
 
-	private ArgumentBuilder<CommandSourceStack, ?> commandAddress(SimpleChannel channel) {
+	private ArgumentBuilder<CommandSourceStack, ?> commandAddress(BiConsumer<ServerPlayer, String> consumer) {
 		return Commands.argument("Player(s)", EntityArgument.players())
 				.then(Commands.argument("Server Address", StringArgumentType.greedyString())
 						.executes(cs -> {
@@ -114,7 +114,7 @@ public class ServerRedirect {
 
 								cs.getArgument("Player(s)", EntitySelector.class).findPlayers(cs.getSource()).forEach(p -> {
 									try {
-										sendTo(p, addr);
+										consumer.accept(p, addr);
 									} catch (Exception e) {
 										e.printStackTrace();
 									}
