@@ -13,18 +13,18 @@ public abstract class AbstractAddressCommand extends AbstractPlayersTargetComman
 	public void handler(EntityPlayerMP p, MinecraftServer server, ICommandSender sender, String[] args) {
 		handler(p, args[1]);
 	}
-	
+
 	public boolean argumentsCheck(ICommandSender sender, String[] args) {
 		if (args.length < 2) {
 			sender.addChatMessage(new TextComponentString(this.getCommandUsage(sender)));
 			return false;
 		}
-		
+
 		if (!Utils.ADDRESS_PREVALIDATOR.matcher(args[1]).matches()) {
 			sender.addChatMessage(new TextComponentString("Invalid Server Address"));
 			return false;
 		}
-		
+
 		return true;
 	}
 }
