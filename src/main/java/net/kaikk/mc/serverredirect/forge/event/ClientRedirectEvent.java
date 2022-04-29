@@ -4,15 +4,14 @@ import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 /**
- * This event is not longer called. Use ClientRedirectEvent instead
+ * Called when a transfer packet is received by the client from the server
  *
  */
 @Cancelable
-@Deprecated
-public class RedirectEvent extends Event {
+public class ClientRedirectEvent extends Event {
 	protected final String address;
 	
-	public RedirectEvent(String address) {
+	public ClientRedirectEvent(String address) {
 		this.address = address;
 	}
 

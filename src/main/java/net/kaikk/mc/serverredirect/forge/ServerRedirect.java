@@ -13,8 +13,10 @@ import org.apache.logging.log4j.Logger;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 
+import net.kaikk.mc.serverredirect.forge.event.ClientFallbackEvent;
+import net.kaikk.mc.serverredirect.forge.event.ClientRedirectEvent;
+import net.kaikk.mc.serverredirect.forge.event.PlayerFallbackEvent;
 import net.kaikk.mc.serverredirect.forge.event.PlayerRedirectEvent;
-import net.kaikk.mc.serverredirect.forge.event.RedirectEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.DirtMessageScreen;
@@ -185,7 +187,7 @@ public class ServerRedirect {
 			throw new IllegalStateException("Not in the main thread");
 		}
 
-		if (MinecraftForge.EVENT_BUS.post(new RedirectEvent(serverAddress))) {
+		if (MinecraftForge.EVENT_BUS.post(new ClientRedirectEvent(serverAddress))) {
 			return;
 		}
 
@@ -211,6 +213,10 @@ public class ServerRedirect {
 
 	@OnlyIn(Dist.CLIENT)
 	public static void setFallbackServerAddress(String fallbackServerAddress) {
+		if (MinecraftForge.EVENT_BUS.post(new ClientFallbackEvent(fallbackServerAddress))) {
+			return;
+		}
+		
 		ServerRedirect.fallbackServerAddress = fallbackServerAddress;
 	}
 
@@ -254,7 +260,7 @@ public class ServerRedirect {
 	 * @return true if the redirect message was sent to the specified player
 	 */
 	public static boolean sendFallbackTo(ServerPlayerEntity player, String serverAddress) {
-		if (MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
+		if (MinecraftForge.EVENT_BUS.post(new PlayerFallbackEvent(player, serverAddress))) {
 			return false;
 		}
 		PacketHandler.FALLBACK_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
@@ -270,7 +276,7 @@ public class ServerRedirect {
 		final PlayerList pl = ServerLifecycleHooks.getCurrentServer().getPlayerList();
 
 		for (ServerPlayerEntity player : pl.getPlayers()) {
-			if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
+			if (!MinecraftForge.EVENT_BUS.post(new PlayerFallbackEvent(player, serverAddress))) {
 				PacketHandler.FALLBACK_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
 			}
 		}
