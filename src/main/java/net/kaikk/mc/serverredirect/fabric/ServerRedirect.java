@@ -23,7 +23,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -115,6 +114,7 @@ public class ServerRedirect implements ModInitializer {
 				}
 			});
 		}
+		
 		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
 			try {
 				dispatcher.register(
@@ -151,22 +151,16 @@ public class ServerRedirect implements ModInitializer {
 			}
 		});
 		
-		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, srv) -> {
 			try {
-				ServerPlayConnectionEvents.DISCONNECT.register((handler, srv) -> {
-					try {
-						players.remove(handler.player.getUuid());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				});
-				ServerPlayNetworking.registerGlobalReceiver(announceChannelIdentifier, (srv, player, handler, buf, response) -> {
-					try {
-						players.add(player.getUuid());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				});
+				players.remove(handler.player.getUuid());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		ServerPlayNetworking.registerGlobalReceiver(announceChannelIdentifier, (srv, player, handler, buf, response) -> {
+			try {
+				players.add(player.getUuid());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
