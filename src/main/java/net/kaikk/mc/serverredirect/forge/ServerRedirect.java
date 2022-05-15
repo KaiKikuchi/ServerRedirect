@@ -70,25 +70,22 @@ public class ServerRedirect {
 	@SubscribeEvent
 	public void onRegisterCommands(RegisterCommandsEvent event) {
 		event.getDispatcher().register(
-				Commands.literal("serverredirect")
-				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(ServerRedirect::sendTo))
-				);
-		event.getDispatcher().register(
 				Commands.literal("redirect")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(ServerRedirect::sendTo))
-				);
-
-		event.getDispatcher().register(
-				Commands.literal("fallbackserver")
-				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(ServerRedirect::sendFallbackTo))
+				.redirect(event.getDispatcher().register(
+						Commands.literal("serverredirect")
+						.requires(cs -> cs.hasPermission(2))
+						.then(commandAddress(ServerRedirect::sendTo))
+						))
 				);
 		event.getDispatcher().register(
 				Commands.literal("fallback")
 				.requires(cs -> cs.hasPermission(2))
-				.then(commandAddress(ServerRedirect::sendFallbackTo))
+				.redirect(event.getDispatcher().register(
+						Commands.literal("fallbackserver")
+						.requires(cs -> cs.hasPermission(2))
+						.then(commandAddress(ServerRedirect::sendFallbackTo))
+						))
 				);
 
 		event.getDispatcher().register(
