@@ -29,8 +29,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraftforge.api.distmarker.Dist;
@@ -111,7 +110,7 @@ public class ServerRedirect {
 							try {
 								String addr = cs.getArgument("Server Address", String.class);
 								if (!PacketHandler.ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
-									cs.getSource().sendFailure(new TextComponent("Invalid Server Address"));
+									cs.getSource().sendFailure(Component.literal("Invalid Server Address"));
 									return 0;
 								}
 
@@ -205,7 +204,7 @@ public class ServerRedirect {
 			mc.level.disconnect();
 		}
 		if (mc.isLocalServer()) {
-			mc.clearLevel(new GenericDirtMessageScreen(new TranslatableComponent("menu.savingLevel")));
+			mc.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
 		} else {
 			mc.clearLevel();
 		}
