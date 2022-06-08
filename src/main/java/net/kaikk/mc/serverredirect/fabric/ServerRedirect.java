@@ -20,7 +20,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -42,7 +42,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 
@@ -115,7 +115,7 @@ public class ServerRedirect implements ModInitializer {
 			});
 		}
 		
-		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			try {
 				dispatcher.register(
 						CommandManager.literal("redirect")
@@ -174,7 +174,7 @@ public class ServerRedirect implements ModInitializer {
 							try {
 								String addr = cs.getArgument("Server Address", String.class);
 								if (!ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
-									cs.getSource().sendError(new LiteralText("Invalid Server Address"));
+									cs.getSource().sendError(Text.literal("Invalid Server Address"));
 									return 0;
 								}
 
