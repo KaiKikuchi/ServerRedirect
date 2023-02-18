@@ -50,6 +50,8 @@ public class ServerRedirect {
 	public static final Logger LOGGER = LogManager.getLogger();
 	protected static final Set<UUID> players = Collections.synchronizedSet(new HashSet<>());
 	@SideOnly(Side.CLIENT)
+	public static volatile String redirectServerAddress;
+	@SideOnly(Side.CLIENT)
 	public static volatile String fallbackServerAddress;
 	@SideOnly(Side.CLIENT)
 	public static boolean connected;
@@ -76,7 +78,11 @@ public class ServerRedirect {
 		}
 
 		Minecraft mc = Minecraft.getMinecraft();
-		if (connected != (mc.theWorld != null)) {
+		if (redirectServerAddress != null) {
+			String addr = redirectServerAddress;
+			redirectServerAddress = null;
+			redirect(addr);
+		} else if (connected != (mc.theWorld != null)) {
 			connected = mc.theWorld != null;
 			if (connected) {
 				PacketHandler.ANNOUNCE_CHANNEL.sendToServer(VoidMessage.INSTANCE);
@@ -137,6 +143,16 @@ public class ServerRedirect {
 		}
 		
 		ServerRedirect.fallbackServerAddress = fallbackServerAddress;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static String getRedirectServerAddress() {
+		return redirectServerAddress;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void setRedirectServerAddress(String redirectServerAddress) {
+		ServerRedirect.redirectServerAddress = redirectServerAddress;
 	}
 
 	/**
