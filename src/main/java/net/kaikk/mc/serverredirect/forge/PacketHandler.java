@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -25,7 +24,7 @@ public class PacketHandler {
 
 	public static IMessage onRedirectAddressMessage(final AddressMessage message, MessageContext ctx) {
 		if (ADDRESS_PREVALIDATOR.matcher(message.getAddress()).matches()) {
-			Minecraft.getMinecraft().addScheduledTask(() -> ServerRedirect.redirect(message.getAddress()));
+			ServerRedirect.setRedirectServerAddress(message.getAddress());
 		}
 		return null;
 	}
