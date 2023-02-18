@@ -89,7 +89,6 @@ public class ServerRedirect {
 		if (redirectServerAddress != null) {
 			String addr = redirectServerAddress;
 			redirectServerAddress = null;
-			fallbackServerAddress = null;
 			redirect(addr);
 		} else if (connected != (mc.theWorld != null)) {
 			connected = mc.theWorld != null;
