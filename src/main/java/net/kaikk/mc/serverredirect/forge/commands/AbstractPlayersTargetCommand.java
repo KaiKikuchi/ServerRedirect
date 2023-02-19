@@ -56,4 +56,9 @@ public abstract class AbstractPlayersTargetCommand extends CommandBase {
 	public boolean isUsernameIndex(String[] args, int index) {
 		return index == 0;
 	}
+	
+	@Override
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
 }
