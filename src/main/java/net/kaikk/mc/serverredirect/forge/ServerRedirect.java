@@ -205,7 +205,7 @@ public class ServerRedirect {
 			mc.clearLevel();
 		}
 		mc.setScreen(new MultiplayerScreen(new MainMenuScreen()));
-		mc.setScreen(new ConnectingScreen(mc.screen, mc, new ServerData("ServerRedirect", serverAddress, false)));
+		mc.setScreen(new ConnectingScreen(mc.screen, mc, new ServerData(serverAddress, serverAddress, false)));
 	}
 
 	@OnlyIn(Dist.CLIENT)
