@@ -242,7 +242,7 @@ public class ServerRedirect implements ModInitializer {
 		mc.disconnect();
 
 		mc.setScreen(new MultiplayerScreen(new TitleScreen()));
-		ConnectScreen.connect(mc.currentScreen, mc, ServerAddress.parse(serverAddress), new ServerInfo("ServerRedirect", serverAddress, false));
+		ConnectScreen.connect(mc.currentScreen, mc, ServerAddress.parse(serverAddress), new ServerInfo(serverAddress, serverAddress, false));
 	}
 	
 
