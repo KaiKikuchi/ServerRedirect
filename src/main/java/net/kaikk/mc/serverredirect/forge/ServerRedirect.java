@@ -47,7 +47,7 @@ import net.minecraftforge.common.MinecraftForge;
 public class ServerRedirect {
 	public static final String MODID = "serverredirect";
 	public static final String NAME = "ServerRedirect";
-	public static final String VERSION = "1.4.4";
+	public static final String VERSION = "1.4.5";
 	public static final Logger LOGGER = LogManager.getLogger();
 	protected static final Set<UUID> players = Collections.synchronizedSet(new HashSet<>());
 	@SideOnly(Side.CLIENT)
@@ -138,7 +138,7 @@ public class ServerRedirect {
 			mc.loadWorld((WorldClient) null);
 		}
 		mc.displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
-		mc.displayGuiScreen(new GuiConnecting(mc.currentScreen, mc, new ServerData("ServerRedirect", serverAddress, false)));
+		mc.displayGuiScreen(new GuiConnecting(mc.currentScreen, mc, new ServerData(serverAddress, serverAddress, false)));
 	}
 
 	@SideOnly(Side.CLIENT)
