@@ -12,7 +12,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.4.4b"
+version = "1.4.5"
 group= "net.kaikk.mc.serverredirect.forge" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "ServerRedirect-ForgeMC8"
 
