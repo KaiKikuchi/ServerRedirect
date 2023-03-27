@@ -209,7 +209,7 @@ public class ServerRedirect {
 			mc.clearLevel();
 		}
 		mc.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
-		ConnectScreen.startConnecting(mc.screen, mc, ServerAddress.parseString(serverAddress), new ServerData("ServerRedirect", serverAddress, false));
+		ConnectScreen.startConnecting(mc.screen, mc, ServerAddress.parseString(serverAddress), new ServerData(serverAddress, serverAddress, false));
 	}
 
 	@OnlyIn(Dist.CLIENT)

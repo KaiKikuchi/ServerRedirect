@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.+'
 }
 
-version = '1.4.4a'
+version = '1.4.5'
 group = 'net.kaikk.mc.serverredirect.forge' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'ServerRedirect-ForgeMC19'
 
