@@ -202,7 +202,7 @@ public class ServerRedirect implements ModInitializer {
 								cs.getArgument("Player(s)", EntitySelector.class).getPlayers(cs.getSource()).forEach(p -> {
 									try {
 										if (isUsingServerRedirect(p) != not) {
-											cs.getSource().getWorld().getServer().getCommandManager().execute(cs.getSource(), command.replace("%PlayerName", p.getGameProfile().getName()).replace("%PlayerId", p.getUuidAsString()));
+											cs.getSource().getWorld().getServer().getCommandManager().executeWithPrefix(cs.getSource(), command.replace("%PlayerName", p.getGameProfile().getName()).replace("%PlayerId", p.getUuidAsString()));
 										}
 									} catch (Exception e) {
 										e.printStackTrace();
@@ -242,7 +242,7 @@ public class ServerRedirect implements ModInitializer {
 		mc.disconnect();
 
 		mc.setScreen(new MultiplayerScreen(new TitleScreen()));
-		ConnectScreen.connect(mc.currentScreen, mc, ServerAddress.parse(serverAddress), new ServerInfo(serverAddress, serverAddress, false));
+		ConnectScreen.connect(mc.currentScreen, mc, ServerAddress.parse(serverAddress), new ServerInfo(serverAddress, serverAddress, false), false);
 	}
 	
 
