@@ -138,7 +138,7 @@ public class ServerRedirect {
 								cs.getArgument("Player(s)", EntitySelector.class).findPlayers(cs.getSource()).forEach(p -> {
 									try {
 										if (isUsingServerRedirect(p) != not) {
-											cs.getSource().getServer().getCommands().performCommand(cs.getSource(), command.replace("%PlayerName", p.getGameProfile().getName()).replace("%PlayerId", p.getStringUUID()));
+											cs.getSource().getServer().getCommands().performPrefixedCommand(cs.getSource(), command.replace("%PlayerName", p.getGameProfile().getName()).replace("%PlayerId", p.getStringUUID()));
 										}
 									} catch (Exception e) {
 										e.printStackTrace();
@@ -177,7 +177,7 @@ public class ServerRedirect {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-		players.remove(event.getPlayer().getUUID());
+		players.remove(event.getEntity().getUUID());
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class ServerRedirect {
 			mc.clearLevel();
 		}
 		mc.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
-		ConnectScreen.startConnecting(mc.screen, mc, ServerAddress.parseString(serverAddress), new ServerData(serverAddress, serverAddress, false));
+		ConnectScreen.startConnecting(mc.screen, mc, ServerAddress.parseString(serverAddress), new ServerData(serverAddress, serverAddress, false), false);
 	}
 
 	@OnlyIn(Dist.CLIENT)

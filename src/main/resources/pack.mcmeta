@@ -1,8 +1,8 @@
 {
-    "pack": {
-        "description": "This mod allows servers to redirect clients to other servers.",
-        "pack_format": 9,
-        "forge:resource_pack_format": 9,
-        "forge:data_pack_format": 10
-    }
+  "pack": {
+    "description": {
+      "text": "${mod_id} resources"
+    },
+    "pack_format": 15
+  }
 }
