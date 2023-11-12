@@ -2,14 +2,14 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
 }
 
 version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = 'ServerRedirect-ForgeMC20'
+    archivesName = 'ServerRedirect-ForgeMC20r2'
 }
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.

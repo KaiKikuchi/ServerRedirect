@@ -1,46 +1,45 @@
 package net.kaikk.mc.serverredirect.forge;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.network.CustomPayloadEvent.Context;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent.Context;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.network.SimpleChannel;
 
 public class PacketHandler {
-	private static final String PROTOCOL_VERSION = "1";
-	public static final SimpleChannel REDIRECT_CHANNEL = NetworkRegistry.newSimpleChannel(
-			new ResourceLocation("srvredirect", "red"),
-			() -> PROTOCOL_VERSION,
-			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION),
-			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION)
-			);
-	public static final SimpleChannel FALLBACK_CHANNEL = NetworkRegistry.newSimpleChannel(
-			new ResourceLocation("srvredirect", "fal"),
-			() -> PROTOCOL_VERSION,
-			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION),
-			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION)
-			);
-	public static final SimpleChannel ANNOUNCE_CHANNEL = NetworkRegistry.newSimpleChannel(
-			new ResourceLocation("srvredirect", "ann"),
-			() -> PROTOCOL_VERSION,
-			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION),
-			NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION)
-			);
+	private static final int PROTOCOL_VERSION = 1;
+	public static final SimpleChannel REDIRECT_CHANNEL = ChannelBuilder
+			.named(new ResourceLocation("srvredirect", "red"))
+			.acceptedVersions((status, version) -> true)
+			.optional()
+			.networkProtocolVersion(PROTOCOL_VERSION)
+			.simpleChannel();
+	public static final SimpleChannel FALLBACK_CHANNEL = ChannelBuilder
+			.named(new ResourceLocation("srvredirect", "fal"))
+			.acceptedVersions((status, version) -> true)
+			.optional()
+			.networkProtocolVersion(PROTOCOL_VERSION)
+			.simpleChannel();
+	public static final SimpleChannel ANNOUNCE_CHANNEL = ChannelBuilder
+			.named(new ResourceLocation("srvredirect", "ann"))
+			.acceptedVersions((status, version) -> true)
+			.optional()
+			.networkProtocolVersion(PROTOCOL_VERSION)
+			.simpleChannel();
+	
 	public static final Pattern ADDRESS_PREVALIDATOR = Pattern.compile("^[A-Za-z0-9-_.:]+$"); // allowed characters in a server address
 	public static final Object EMPTY_OBJECT = new Object();
 
 	public static void init() {
-		REDIRECT_CHANNEL.registerMessage(0, String.class, PacketHandler::encode, PacketHandler::decode, PacketHandler::handleRedirect, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-		FALLBACK_CHANNEL.registerMessage(0, String.class, PacketHandler::encode, PacketHandler::decode, PacketHandler::handleFallback, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-		ANNOUNCE_CHANNEL.registerMessage(0, Object.class, PacketHandler::encodeVoid, PacketHandler::decodeVoid, PacketHandler::handleAnnounce, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+		REDIRECT_CHANNEL.messageBuilder(String.class, 0, NetworkDirection.PLAY_TO_CLIENT).encoder(PacketHandler::encode).decoder(PacketHandler::decode).consumerNetworkThread(PacketHandler::handleRedirect).add();
+		FALLBACK_CHANNEL.messageBuilder(String.class, 0, NetworkDirection.PLAY_TO_CLIENT).encoder(PacketHandler::encode).decoder(PacketHandler::decode).consumerNetworkThread(PacketHandler::handleFallback).add();
+		ANNOUNCE_CHANNEL.messageBuilder(Object.class, 0, NetworkDirection.PLAY_TO_SERVER).encoder(PacketHandler::encodeVoid).decoder(PacketHandler::decodeVoid).consumerNetworkThread(PacketHandler::handleAnnounce).add();
 	}
 
 	public static void encode(String addr, FriendlyByteBuf buffer) {
@@ -51,18 +50,18 @@ public class PacketHandler {
 		return buffer.toString(StandardCharsets.UTF_8);
 	}
 
-	public static void handleRedirect(String addr, Supplier<Context> ctx) {
-		if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT && ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
-			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ServerRedirect.redirect(addr)));
+	public static void handleRedirect(String addr, Context ctx) {
+		if (ctx.getDirection() == NetworkDirection.PLAY_TO_CLIENT && ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
+			ctx.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ServerRedirect.redirect(addr)));
 		}
-		ctx.get().setPacketHandled(true);
+		ctx.setPacketHandled(true);
 	}
 
-	public static void handleFallback(String addr, Supplier<Context> ctx) {
-		if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT && ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
-			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ServerRedirect.setFallbackServerAddress(addr)));
+	public static void handleFallback(String addr, Context ctx) {
+		if (ctx.getDirection() == NetworkDirection.PLAY_TO_CLIENT && ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
+			ctx.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ServerRedirect.setFallbackServerAddress(addr)));
 		}
-		ctx.get().setPacketHandled(true);
+		ctx.setPacketHandled(true);
 	}
 
 	public static void encodeVoid(Object v, FriendlyByteBuf buffer) {
@@ -73,10 +72,10 @@ public class PacketHandler {
 		return EMPTY_OBJECT;
 	}
 
-	public static void handleAnnounce(Object v, Supplier<Context> ctx) {
-		if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
-			ServerRedirect.players.add(ctx.get().getSender().getUUID());
+	public static void handleAnnounce(Object v, Context ctx) {
+		if (ctx.getDirection() == NetworkDirection.PLAY_TO_SERVER) {
+			ServerRedirect.players.add(ctx.getSender().getUUID());
 		}
-		ctx.get().setPacketHandled(true);
+		ctx.setPacketHandled(true);
 	}
 }

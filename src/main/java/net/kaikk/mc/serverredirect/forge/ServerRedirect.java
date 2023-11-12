@@ -46,7 +46,6 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.NetworkConstants;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -67,7 +66,7 @@ public class ServerRedirect {
 	private void setup(final FMLCommonSetupEvent event) {
 		PacketHandler.init();
 		MinecraftForge.EVENT_BUS.register(this);
-		ModLoadingContext.get().registerExtensionPoint(DisplayTest.class, () -> new DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
+		ModLoadingContext.get().registerExtensionPoint(DisplayTest.class, () -> new DisplayTest(() -> DisplayTest.IGNORESERVERONLY, (a, b) -> true));
 	}
 
 	@SubscribeEvent
@@ -162,7 +161,7 @@ public class ServerRedirect {
 		if (connected != (mc.level != null)) {
 			connected = mc.level != null;
 			if (connected) {
-				PacketHandler.ANNOUNCE_CHANNEL.sendToServer(PacketHandler.EMPTY_OBJECT);
+				PacketHandler.ANNOUNCE_CHANNEL.send(PacketHandler.EMPTY_OBJECT, PacketDistributor.SERVER.noArg());
 			}
 		} else if (fallbackServerAddress != null) {
 			if (mc.screen instanceof DisconnectedScreen) {
@@ -204,12 +203,12 @@ public class ServerRedirect {
 			mc.level.disconnect();
 		}
 		if (mc.isLocalServer()) {
-			mc.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
+			mc.clearClientLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
 		} else {
-			mc.clearLevel();
+			mc.clearClientLevel(null);
 		}
 		mc.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
-		ConnectScreen.startConnecting(mc.screen, mc, ServerAddress.parseString(serverAddress), new ServerData(serverAddress, serverAddress, false), false);
+		ConnectScreen.startConnecting(mc.screen, mc, ServerAddress.parseString(serverAddress), new ServerData(serverAddress, serverAddress, ServerData.Type.OTHER), false);
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -238,7 +237,7 @@ public class ServerRedirect {
 		if (MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
 			return false;
 		}
-		PacketHandler.REDIRECT_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
+		PacketHandler.REDIRECT_CHANNEL.send(serverAddress, PacketDistributor.PLAYER.with(player));
 		return true;
 	}
 
@@ -252,7 +251,7 @@ public class ServerRedirect {
 
 		for (ServerPlayer player : pl.getPlayers()) {
 			if (!MinecraftForge.EVENT_BUS.post(new PlayerRedirectEvent(player, serverAddress))) {
-				PacketHandler.REDIRECT_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
+				PacketHandler.REDIRECT_CHANNEL.send(serverAddress, PacketDistributor.PLAYER.with(player));
 			}
 		}
 	}
@@ -269,7 +268,7 @@ public class ServerRedirect {
 		if (MinecraftForge.EVENT_BUS.post(new PlayerFallbackEvent(player, serverAddress))) {
 			return false;
 		}
-		PacketHandler.FALLBACK_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
+		PacketHandler.FALLBACK_CHANNEL.send(serverAddress, PacketDistributor.PLAYER.with(player));
 		return true;
 	}
 
@@ -283,7 +282,7 @@ public class ServerRedirect {
 
 		for (ServerPlayer player : pl.getPlayers()) {
 			if (!MinecraftForge.EVENT_BUS.post(new PlayerFallbackEvent(player, serverAddress))) {
-				PacketHandler.FALLBACK_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), serverAddress);
+				PacketHandler.FALLBACK_CHANNEL.send(serverAddress, PacketDistributor.PLAYER.with(player));
 			}
 		}
 	}
