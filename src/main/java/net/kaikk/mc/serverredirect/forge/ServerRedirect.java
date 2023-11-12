@@ -177,7 +177,7 @@ public class ServerRedirect {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-		players.remove(event.getPlayer().getUUID());
+		players.remove(event.getEntity().getUUID());
 	}
 
 	/**
