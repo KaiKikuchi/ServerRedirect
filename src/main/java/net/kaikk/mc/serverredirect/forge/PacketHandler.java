@@ -15,19 +15,19 @@ import net.minecraftforge.network.SimpleChannel;
 public class PacketHandler {
 	private static final int PROTOCOL_VERSION = 1;
 	public static final SimpleChannel REDIRECT_CHANNEL = ChannelBuilder
-			.named(new ResourceLocation("srvredirect", "red"))
+			.named(ResourceLocation.fromNamespaceAndPath("srvredirect", "red"))
 			.acceptedVersions((status, version) -> true)
 			.optional()
 			.networkProtocolVersion(PROTOCOL_VERSION)
 			.simpleChannel();
 	public static final SimpleChannel FALLBACK_CHANNEL = ChannelBuilder
-			.named(new ResourceLocation("srvredirect", "fal"))
+			.named(ResourceLocation.fromNamespaceAndPath("srvredirect", "fal"))
 			.acceptedVersions((status, version) -> true)
 			.optional()
 			.networkProtocolVersion(PROTOCOL_VERSION)
 			.simpleChannel();
 	public static final SimpleChannel ANNOUNCE_CHANNEL = ChannelBuilder
-			.named(new ResourceLocation("srvredirect", "ann"))
+			.named(ResourceLocation.fromNamespaceAndPath("srvredirect", "ann"))
 			.acceptedVersions((status, version) -> true)
 			.optional()
 			.networkProtocolVersion(PROTOCOL_VERSION)
@@ -51,14 +51,14 @@ public class PacketHandler {
 	}
 
 	public static void handleRedirect(String addr, Context ctx) {
-		if (ctx.getDirection() == NetworkDirection.PLAY_TO_CLIENT && ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
+		if (ctx.isClientSide() && ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
 			ctx.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ServerRedirect.redirect(addr)));
 		}
 		ctx.setPacketHandled(true);
 	}
 
 	public static void handleFallback(String addr, Context ctx) {
-		if (ctx.getDirection() == NetworkDirection.PLAY_TO_CLIENT && ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
+		if (ctx.isClientSide() && ADDRESS_PREVALIDATOR.matcher(addr).matches()) {
 			ctx.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ServerRedirect.setFallbackServerAddress(addr)));
 		}
 		ctx.setPacketHandled(true);
@@ -73,7 +73,7 @@ public class PacketHandler {
 	}
 
 	public static void handleAnnounce(Object v, Context ctx) {
-		if (ctx.getDirection() == NetworkDirection.PLAY_TO_SERVER) {
+		if (ctx.isServerSide()) {
 			ServerRedirect.players.add(ctx.getSender().getUUID());
 		}
 		ctx.setPacketHandled(true);

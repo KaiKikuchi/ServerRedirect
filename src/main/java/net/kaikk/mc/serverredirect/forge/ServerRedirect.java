@@ -20,7 +20,6 @@ import net.kaikk.mc.serverredirect.forge.event.PlayerRedirectEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
-import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -202,13 +201,11 @@ public class ServerRedirect {
 		if (mc.level != null) {
 			mc.level.disconnect();
 		}
-		if (mc.isLocalServer()) {
-			mc.clearClientLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
-		} else {
-			mc.clearClientLevel(null);
-		}
+
+		mc.disconnect();
+
 		mc.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
-		ConnectScreen.startConnecting(mc.screen, mc, ServerAddress.parseString(serverAddress), new ServerData(serverAddress, serverAddress, ServerData.Type.OTHER), false);
+		ConnectScreen.startConnecting(mc.screen, mc, ServerAddress.parseString(serverAddress), new ServerData(serverAddress, serverAddress, ServerData.Type.OTHER), false, null);
 	}
 
 	@OnlyIn(Dist.CLIENT)
