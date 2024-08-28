@@ -9,6 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +30,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ConnectScreen;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
@@ -242,7 +242,7 @@ public class ServerRedirect implements ModInitializer {
 		mc.disconnect();
 
 		mc.setScreen(new MultiplayerScreen(new TitleScreen()));
-		ConnectScreen.connect(mc.currentScreen, mc, ServerAddress.parse(serverAddress), new ServerInfo(serverAddress, serverAddress, false), false);
+		ConnectScreen.connect(mc.currentScreen, mc, ServerAddress.parse(serverAddress), new ServerInfo(serverAddress, serverAddress, ServerInfo.ServerType.OTHER), false);
 	}
 	
 
